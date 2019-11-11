@@ -19,7 +19,7 @@ setup(
     url=about['__url__'],
     long_description=readme,
     long_description_content_type='text/markdown',
-    keywords='environment, agent, rl, openaigym, openai-gym, gym, breakout',
+    keywords='environment, agent, rl, openaigym, openai-gym, gym, sapientino',
     packages=find_packages(include="gym_breakout_pygame*"),
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
@@ -31,7 +31,7 @@ setup(
     ],
     install_requires=["gym", "pygame", "numpy"],
     tests_require=["tox"],
-    python_requires='>=3.6',
+    python_requires='>=3.7',
     license=about['__license__'],
     zip_safe=False
 )
