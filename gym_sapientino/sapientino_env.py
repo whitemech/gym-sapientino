@@ -549,6 +549,7 @@ class Sapientino(gym.Env, ABC):
         """
 
     def play(self):
+        print("Press 'Q' to quit.")
         self.reset()
         self.render()
         quitted = False

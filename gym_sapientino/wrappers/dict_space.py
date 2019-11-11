@@ -37,7 +37,3 @@ class SapientinoDictSpace(Sapientino):
         """Observe the state."""
         return state.to_dict()
 
-
-if __name__ == '__main__':
-    env = SapientinoDictSpace(SapientinoConfiguration(differential=True))
-    env.play()
