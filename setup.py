@@ -20,7 +20,7 @@ setup(
     long_description=readme,
     long_description_content_type='text/markdown',
     keywords='environment, agent, rl, openaigym, openai-gym, gym, sapientino',
-    packages=find_packages(include="gym_breakout_pygame*"),
+    packages=find_packages(include="gym_sapientino*"),
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
