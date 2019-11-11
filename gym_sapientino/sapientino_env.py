@@ -36,8 +36,10 @@ class Colors(Enum):
     def __str__(self):
         return self.value
 
-color2int = dict(map(reversed, enumerate(Colors)))
+    def __int__(self):
+        return color2int[self]
 
+color2int = dict(map(reversed, enumerate(Colors)))
 
 TOKENS = [
     ['r1', Colors.RED.value, 0, 0],
