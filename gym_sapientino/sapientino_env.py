@@ -506,8 +506,9 @@ class SapientinoState(State):
         return self.grid.cells[self.robot.position]
 
     def is_finished(self) -> bool:
-        end3 = self._steps > self.config.horizon
-        return end3
+        end1 = self.last_command in {NormalCommand.DONE, DifferentialCommand.DONE}
+        end2 = self._steps > self.config.horizon
+        return end1 or end2
 
 
 class Sapientino(gym.Env, ABC):
@@ -532,7 +533,6 @@ class Sapientino(gym.Env, ABC):
         reward = self.state.step(command)
         obs = self.observe(self.state)
         is_finished = self.state.is_finished()
-        is_finished = is_finished or command.value == command.DONE.value
         info = {}
         return obs, reward, is_finished, info
 
