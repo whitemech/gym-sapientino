@@ -230,7 +230,8 @@ class SapientinoConfiguration:
                  differential: bool = False,
                  horizon: Optional[int] = None,
                  reward_outside_grid: float = -1.0,
-                 reward_duplicate_beep: float = -1.0):
+                 reward_duplicate_beep: float = -1.0,
+                 reward_per_step: float = -0.01):
 
         self.rows = rows
         self.columns = columns
@@ -238,6 +239,7 @@ class SapientinoConfiguration:
         self._horizon = horizon if horizon else (self.columns * self.rows) * 10
         self.reward_outside_grid = reward_outside_grid
         self.reward_duplicate_beep = reward_duplicate_beep
+        self.reward_per_step = reward_per_step
 
         self.offx = 40
         self.offy = 100
@@ -480,6 +482,7 @@ class SapientinoState(State):
             if cell.bip_count >= 2:
                 reward += self.config.reward_duplicate_beep
 
+        reward += self.config.reward_per_step
         return reward
 
     def reset(self) -> 'SapientinoState':
