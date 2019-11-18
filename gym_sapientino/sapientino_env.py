@@ -172,7 +172,6 @@ class NormalCommand(Enum):
     DOWN = 3
     BEEP = 4
     NOP = 5
-    DONE = 6
 
     def __str__(self):
         cmd = NormalCommand(self.value)
@@ -188,8 +187,6 @@ class NormalCommand(Enum):
             return "o"
         elif cmd == NormalCommand.NOP:
             return "_"
-        elif cmd == NormalCommand.DONE:
-            return "done"
         else:
             raise ValueError("Shouldn't be here...")
 
@@ -201,7 +198,6 @@ class DifferentialCommand(Enum):
     BACKWARD = 3
     BEEP = 4
     NOP = 5
-    DONE = 6
 
     def __str__(self):
         cmd = DifferentialCommand(self.value)
@@ -217,8 +213,6 @@ class DifferentialCommand(Enum):
             return "o"
         elif cmd == DifferentialCommand.NOP:
             return "_"
-        elif cmd == DifferentialCommand.DONE:
-            return "done"
         else:
             raise ValueError("Shouldn't be here...")
 
@@ -506,9 +500,8 @@ class SapientinoState(State):
         return self.grid.cells[self.robot.position]
 
     def is_finished(self) -> bool:
-        end1 = self.last_command in {NormalCommand.DONE, DifferentialCommand.DONE}
-        end2 = self._steps > self.config.horizon
-        return end1 or end2
+        end = self._steps > self.config.horizon
+        return end
 
 
 class Sapientino(gym.Env, ABC):
