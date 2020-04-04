@@ -2,7 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/gym_sapientino)](https://pypi.org/project/gym_sapientino/)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/gym_sapientino)
-[![](https://img.shields.io/pypi/l/aea)](https://github.com/whitemech/gym-sapientino/blob/master/LICENSE)
+[![](https://img.shields.io/pypi/l/gym_sapientino)](https://github.com/whitemech/gym-sapientino/blob/master/LICENSE)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/gym_sapientino)
 ![CI](https://github.com/whitemech/gym-sapientino/workflows/CI/badge.svg)
 [![codecov](https://codecov.io/gh/whitemech/gym-sapientino/branch/master/graph/badge.svg)](https://codecov.io/gh/whitemech/gym-sapientino)
