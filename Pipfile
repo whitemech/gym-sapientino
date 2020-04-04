@@ -7,15 +7,15 @@ verify_ssl = true
 tox = "*"
 ipython = "*"
 jupyter = "*"
-keras = "*"
-tensorflow-gpu = "*"
-keras-rl = "*"
-tensorflow-cpu = "*"
+pytest = "*"
+pytest-cov = "*"
+flake8 = "*"
+mpy = "*"
+mkdocs = "*"
+pydocstyle = "*"
+markdown-include = "*"
 
 [packages]
-gym = "*"
-pygame = "*"
-numpy = "*"
 
 [requires]
-python_version = "3"
+python_version = "3.7"
