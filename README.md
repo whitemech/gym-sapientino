@@ -10,6 +10,16 @@
 
 Gym Sapientino environment using Pygame.
 
+## Links
+
+- GitHub: [https://github.com/whitemech/gym-sapientino](https://github.com/whitemech/gym-sapientino)
+- PyPI: [https://pypi.org/project/gym_sapientino/](https://pypi.org/project/gym_sapientino/)
+- Documentation: [https://whitemech.github.io/gym-sapientino](https://whitemech.github.io/gym-sapientino)
+- Changelog: [https://whitemech.github.io/gym-sapientino/history/](https://whitemech.github.io/gym-sapientino/history/)
+- Issue Tracker:[https://github.com/whitemech/gym-sapientino/issues](https://github.com/whitemech/gym-sapientino/issues)
+- Download: [https://pypi.org/project/gym_sapientino/#files](https://pypi.org/project/gym_sapientino/#files)
+
+
 ## Install
 
 Install with `pip`:
