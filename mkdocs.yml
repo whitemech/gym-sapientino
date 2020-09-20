@@ -1,11 +1,31 @@
 site_name: Gym Sapientino
-nav:
-    - Home: index.md
-    - Release History: history.md
-    - Authors: authors.md
-    - How to contribute: contributing.md
+repo_name: 'whitemech/gym-sapientino'
+repo_url: https://github.com/whitemech/gym-sapientino
 
-theme: readthedocs
+nav:
+- Home: index.md
+- Authors: authors.md
+- How to contribute: contributing.md
+- Release History: history.md
+
+
+plugins:
+- mknotebooks:
+    execute: false
+    write_markdown: false
+    #preamble: ""
+    #enable_default_jupyter_cell_styling: false
+    #enable_default_pandas_dataframe_styling: false
+- search
+
+theme:
+  name: material
+
 markdown_extensions:
-    - markdown_include.include:
-        base_path: docs
+- codehilite
+- pymdownx.arithmatex
+- markdown_include.include:
+    base_path: docs
+
+extra_javascript:
+  - 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML'

@@ -1,5 +1,4 @@
-include README.md LICENSE Pipfile Pipfile.lock
+include README.md LICENSE
 
-recursive-include gym_sapientino *
 recursive-include tests *.py
 recursive-include docs *

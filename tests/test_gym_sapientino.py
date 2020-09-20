@@ -20,4 +20,11 @@
 # along with gym-sapientino.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-"""Tests for the Sapientino environment."""
+"""Tests for the Sapientino Gym environment."""
+from gym_sapientino import __version__
+
+
+def test_version():
+    """Test version."""
+    assert __version__ == "0.1.0"
+
