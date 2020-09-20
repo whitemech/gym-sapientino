@@ -54,17 +54,26 @@
   </a>
 </p>
 
-Gym Sapientino environment using Pygame.
+OpenAI Gym Sapientino environment using Pygame.
 
-## Links
+<p align="center">
+  <img src="./sapientino-homepage.gif" />
+</p>
 
-- GitHub: [https://github.com/whitemech/gym-sapientino](https://github.com/whitemech/gym-sapientino)
-- PyPI: [https://pypi.org/project/gym_sapientino/](https://pypi.org/project/gym_sapientino/)
-- Documentation: [https://whitemech.github.io/gym-sapientino](https://whitemech.github.io/gym-sapientino)
-- Changelog: [https://whitemech.github.io/gym-sapientino/history/](https://whitemech.github.io/gym-sapientino/history/)
-- Issue Tracker:[https://github.com/whitemech/gym-sapientino/issues](https://github.com/whitemech/gym-sapientino/issues)
-- Download: [https://pypi.org/project/gym_sapientino/#files](https://pypi.org/project/gym_sapientino/#files)
+## Description
 
+The environment is inspired by a game for kids called 
+[_Sapientino_](https://it.wikipedia.org/wiki/Sapientino).
+ 
+A robot moves on a gridworld-like environment, 
+where each cell can be coloured. 
+When a robot is on a coloured cell, it can 
+run a _beep_, meaning it has visited the cell.
+
+The environment is compliant with the 
+[OpenAI Gym](https://github.com/openai/gym/) APIs.
+The idea is that the designer of the experiment
+should implement the actual reward by wrapping the environment. 
 
 ## Install
 
