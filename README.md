@@ -57,7 +57,7 @@
 OpenAI Gym Sapientino environment using Pygame.
 
 <p align="center">
-  <img src="./sapientino-homepage.gif" />
+  <img src="https://raw.githubusercontent.com/whitemech/gym-sapientino/master/docs/sapientino-homepage.gif" />
 </p>
 
 ## Description
@@ -74,6 +74,23 @@ The environment is compliant with the
 [OpenAI Gym](https://github.com/openai/gym/) APIs.
 The idea is that the designer of the experiment
 should implement the actual reward by wrapping the environment. 
+
+## Dependencies
+
+The environment is implemented using Pygame.
+
+On Ubuntu, you need the following libraries:
+```
+sudo apt-get install python3-dev \
+    libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl-ttf2.0-dev libsmpeg-dev \
+    libsdl1.2-dev  libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev libfreetype6-dev
+```
+
+On MacOS (not tested):
+```
+brew install sdl sdl_ttf sdl_image sdl_mixer portmidi  # brew or use equivalent means
+conda install -c https://conda.binstar.org/quasiben pygame  # using Anaconda
+```
 
 ## Install
 
