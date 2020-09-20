@@ -53,8 +53,6 @@
     <img alt="" src="https://img.shields.io/badge/docs-mkdocs-9cf">
   </a>
 </p>
->>>>>>> Stashed changes
-
 
 Gym Sapientino environment using Pygame.
 

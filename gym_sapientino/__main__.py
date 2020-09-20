@@ -21,20 +21,25 @@
 # along with gym-sapientino.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-from gym_sapientino.sapientino_env import SapientinoConfiguration
-from gym_sapientino.wrappers.dict_space import SapientinoDictSpace
+"""Main entrypoint to play with Sapientino."""
 
 import argparse
 
+from gym_sapientino.sapientino_env import SapientinoConfiguration
+from gym_sapientino.wrappers.dict_space import SapientinoDictSpace
+
 
 def parse_arguments():
+    """Parse the CLI arguments."""
     parser = argparse.ArgumentParser("sapientino")
-    parser.add_argument("--differential", action="store_true", help="Differential action space.")
+    parser.add_argument(
+        "--differential", action="store_true", help="Differential action space."
+    )
 
     return parser.parse_args()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     args = parse_arguments()
     env = SapientinoDictSpace(SapientinoConfiguration(differential=args.differential))
     env.play()

@@ -21,20 +21,26 @@
 #
 
 """Sapientino environments using a "dict" state space."""
-
+import gym
 from gym.spaces import Dict, Discrete
 
-from gym_sapientino.sapientino_env import Sapientino, SapientinoState, SapientinoConfiguration, Direction
+from gym_sapientino.sapientino_env import Sapientino, SapientinoState
 
 
 class SapientinoDictSpace(Sapientino):
-    """A Breakout environment with a dictionary state space.
+    """
+    A Breakout environment with a dictionary state space.
+
     The components of the space are:
     - Robot x coordinate (Discrete)
     - Robot y coordinate (Discrete)
+    - The orientation (Discrete)
+    - A boolean to check whether the last action was a beep (Discrete)
+    - The color of the current cell (Discrete)
     """
 
     def __init__(self, *args, **kwargs):
+        """Initialize the dictionary space."""
         super().__init__(*args, **kwargs)
 
         self._x_space = Discrete(self.configuration.columns)
@@ -44,16 +50,18 @@ class SapientinoDictSpace(Sapientino):
         self._color_space = Discrete(self.configuration.nb_colors)
 
     @property
-    def observation_space(self):
-        return Dict({
-            "x": self._x_space,
-            "y": self._y_space,
-            "theta": self._theta_space,
-            "beep": self._beep_space,
-            "color": self._color_space
-        })
+    def observation_space(self) -> gym.Space:
+        """Get the observation space."""
+        return Dict(
+            {
+                "x": self._x_space,
+                "y": self._y_space,
+                "theta": self._theta_space,
+                "beep": self._beep_space,
+                "color": self._color_space,
+            }
+        )
 
     def observe(self, state: SapientinoState):
         """Observe the state."""
         return state.to_dict()
-
