@@ -2,8 +2,8 @@
 
 ## Authors
 
-* [Luca Iocchi](https://github.com/iocchi) <[iocchi@diag.uniroma1.it](mailto:marco.favorito@gmail.com)>
-* [Marco Favorito](https://github.com/marcofavorito) <[marco.favorito@gmail.com](mailto:marco.favorito@gmail.com)>
+* [Luca Iocchi](https://github.com/iocchi) <[iocchi@diag.uniroma1.it](mailto:iocchi@diag.uniroma1.it)>
+* [Marco Favorito](https://github.com/marcofavorito) <[favorito@diag.uniroma1.it](mailto:favorito@diag.uniroma1.it)>
 
 ## Contributors
 
