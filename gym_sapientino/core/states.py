@@ -33,6 +33,7 @@ from gym_sapientino.core.types import (
     COMMAND_TYPES,
     Colors,
     DifferentialCommand,
+    Direction,
     NormalCommand,
 )
 
@@ -86,11 +87,10 @@ class SapientinoStateSingleRobot(SapientinoState):
         super().__init__(config)
 
         assert config.nb_robots == 1, "Can support only one robot."
-        self._robots = [Robot(config)]
+        self._robots = [Robot(config, 3, 2, Direction.UP, 0)]
         self.last_command: COMMAND_TYPES = (
             NormalCommand.NOP if config.differential else DifferentialCommand.NOP
         )
-        self._steps = 0
 
     @property
     def robot(self) -> Robot:
@@ -100,9 +100,8 @@ class SapientinoStateSingleRobot(SapientinoState):
     def step(self, command: COMMAND_TYPES) -> float:
         """Do a step."""
         reward = 0.0
-        self._steps += 1
 
-        self.robot.step(command)
+        self._robots[0] = self.robot.step(command)
         self.last_command = command
 
         if not (0 <= self.robot.x < self.config.columns):
@@ -147,8 +146,7 @@ class SapientinoStateSingleRobot(SapientinoState):
     @property
     def is_finished(self) -> bool:
         """Check whether the game has ended."""
-        end = self._steps > self.config.horizon
-        return end
+        return False
 
     @property
     def last_commands(self) -> Sequence[COMMAND_TYPES]:

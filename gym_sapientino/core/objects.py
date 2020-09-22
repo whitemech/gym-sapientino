@@ -41,19 +41,15 @@ from gym_sapientino.core.types import (
 class Robot:
     """A class to represent a robot."""
 
-    def __init__(self, config: SapientinoConfiguration, id_: int = 0):
+    def __init__(
+        self, config: SapientinoConfiguration, x: int, y: int, th: Direction, id_: int
+    ):
         """Initialize the robot."""
         self.config = config
-
         self._id = id_
-
-        self._initial_x = 3
-        self._initial_y = 2
-        self._initial_th = 90
-
-        self.x = self._initial_x
-        self.y = self._initial_y
-        self.direction = Direction(self._initial_th)
+        self.x = x
+        self.y = y
+        self.direction = th
 
     @property
     def id(self) -> int:
@@ -65,44 +61,43 @@ class Robot:
         """Get the position."""
         return self.x, self.y
 
-    def reset(self) -> None:
-        """Reset the robot."""
-        self.x = self._initial_x
-        self.y = self._initial_y
-        self.direction = Direction(self._initial_th)
-
-    def step(self, command: COMMAND_TYPES):
-        """Execute a command."""
+    def step(self, command: COMMAND_TYPES) -> "Robot":
+        """Compute the next location."""
         if isinstance(command, NormalCommand):
-            self._step_normal(command)
+            return self._step_normal(command)
         elif isinstance(command, DifferentialCommand):
-            self._step_differential(command)
+            return self._step_differential(command)
         else:
             raise ValueError("Command not recognized.")
 
-    def _step_normal(self, command: NormalCommand):
+    def _step_normal(self, command: NormalCommand) -> "Robot":
+        x, y = self.x, self.y
         if command == command.DOWN:
-            self.y -= 1
+            y -= 1
         elif command == command.UP:
-            self.y += 1
+            y += 1
         elif command == command.RIGHT:
-            self.x += 1
+            x += 1
         elif command == command.LEFT:
-            self.x -= 1
+            x -= 1
+        return Robot(self.config, x, y, self.direction, self.id)
 
-    def _step_differential(self, command: DifferentialCommand):
+    def _step_differential(self, command: DifferentialCommand) -> "Robot":
         dx = 1 if self.direction.th == 0 else -1 if self.direction.th == 180 else 0
         dy = 1 if self.direction.th == 90 else -1 if self.direction.th == 270 else 0
+        x, y = self.x, self.y
+        direction = self.direction
         if command == command.LEFT:
-            self.direction = self.direction.rotate_left()
+            direction = direction.rotate_left()
         elif command == command.RIGHT:
-            self.direction = self.direction.rotate_right()
+            direction = direction.rotate_right()
         elif command == command.FORWARD:
-            self.x += dx
-            self.y += dy
+            x += dx
+            y += dy
         elif command == command.BACKWARD:
-            self.x -= dx
-            self.y -= dy
+            x -= dx
+            y -= dy
+        return Robot(self.config, x, y, direction, self.id)
 
     @property
     def encoded_theta(self) -> int:
@@ -119,10 +114,6 @@ class Cell:
         self.x = x
         self.y = y
         self.color = color
-        self.bip_count = 0
-
-    def reset(self) -> None:
-        """Reset the cell."""
         self.bip_count = 0
 
     @property
@@ -172,8 +163,3 @@ class SapientinoGrid:
         ):
             if (x, y) not in self.cells:
                 self.cells[(x, y)] = BlankCell(self.config, x, y)
-
-    def reset(self) -> None:
-        """Reset the grid."""
-        for t in self.cells.values():
-            t.reset()

@@ -20,7 +20,7 @@
 # along with gym-sapientino.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-"""Basic types."""
+"""Define basic types."""
 
 from enum import Enum
 from typing import Dict, Union
@@ -87,14 +87,13 @@ class DifferentialCommand(Enum):
 COMMAND_TYPES = Union[NormalCommand, DifferentialCommand]
 
 
-class Direction:
+class Direction(Enum):
     """A class to represent the four directions (up, down, left, right)."""
 
-    NB_DIRECTIONS = 4
-
-    def __init__(self, th: int = 90):
-        """Initialize a direction."""
-        self.th = th
+    RIGHT = 0
+    UP = 90
+    LEFT = 180
+    DOWN = 270
 
     def rotate_left(self) -> "Direction":
         """Rotate the direction to the left."""
@@ -107,6 +106,16 @@ class Direction:
         if th == -90:
             th = 270
         return Direction(th)
+
+    @staticmethod
+    def nb_directions() -> int:
+        """Get the number of allowed directions."""
+        return len(Direction)
+
+    @property
+    def th(self):
+        """Get the theta value of the direction."""
+        return self.value
 
 
 class Colors(Enum):

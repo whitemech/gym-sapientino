@@ -21,6 +21,7 @@
 #
 
 """Classes for the environment configurations."""
+from dataclasses import dataclass
 from typing import Optional
 
 import gym
@@ -35,34 +36,25 @@ from gym_sapientino.core.types import (
 )
 
 
+@dataclass(frozen=True)
 class SapientinoConfiguration:
     """A class to represent Sapientino configurations."""
 
-    def __init__(
-        self,
-        rows: int = 5,
-        columns: int = 7,
-        nb_robots: int = 1,
-        differential: bool = False,
-        horizon: Optional[int] = None,
-        reward_outside_grid: float = -1.0,
-        reward_duplicate_beep: float = -1.0,
-        reward_per_step: float = -0.01,
-    ):
-        """Initialize the configurations."""
-        self.rows = rows
-        self.columns = columns
-        self.nb_robots = nb_robots
-        self.differential = differential
-        self._horizon = horizon if horizon else (self.columns * self.rows) * 10
-        self.reward_outside_grid = reward_outside_grid
-        self.reward_duplicate_beep = reward_duplicate_beep
-        self.reward_per_step = reward_per_step
+    # game configurations
+    rows: int = 5
+    columns: int = 7
+    nb_robots: int = 1
+    differential: bool = False
+    _horizon: Optional[int] = None
+    reward_outside_grid: float = -1.0
+    reward_duplicate_beep: float = -1.0
+    reward_per_step: float = -0.01
 
-        self.offx = 40
-        self.offy = 100
-        self.radius = 5
-        self.size_square = 40
+    # rendering configurations
+    offx: int = 40
+    offy: int = 100
+    radius: int = 5
+    size_square: int = 40
 
     @property
     def win_width(self) -> int:
@@ -93,7 +85,7 @@ class SapientinoConfiguration:
         """Get the observation space."""
         if self.differential:
             # 4 is the number of possible direction - nord, sud, west, east
-            return MultiDiscrete((self.columns, self.rows, Direction.NB_DIRECTIONS))
+            return MultiDiscrete((self.columns, self.rows, Direction.nb_directions()))
         else:
             return MultiDiscrete((self.columns, self.rows))
 
@@ -105,14 +97,9 @@ class SapientinoConfiguration:
             return NormalCommand(action)
 
     @property
-    def horizon(self) -> int:
-        """Get the horizon."""
-        return self._horizon
-
-    @property
     def nb_theta(self):
         """Get the number of orientations."""
-        return Direction.NB_DIRECTIONS
+        return Direction.nb_directions()
 
     @property
     def nb_colors(self):

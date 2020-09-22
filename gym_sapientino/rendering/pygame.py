@@ -81,7 +81,7 @@ class PygameRenderer(Renderer):
 
     def _draw_last_command(self):
         cmds = self.state.last_commands
-        s = "".join(f"{c.value}" for c in cmds)
+        s = "".join(f"{str(c)}" for c in cmds)
         count_label = self.myfont.render(s, 100, pygame.color.THECOLORS["brown"])
         self._screen.blit(count_label, (60, 10))
 
