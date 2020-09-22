@@ -21,15 +21,18 @@
 #
 
 """Sapientino environments using a "dict" state space."""
+from typing import cast
+
 import gym
 from gym.spaces import Dict, Discrete
 
-from gym_sapientino.sapientino_env import Sapientino, SapientinoState
+from gym_sapientino.core.states import SapientinoState, SapientinoStateSingleRobot
+from gym_sapientino.sapientino_env import Sapientino
 
 
 class SapientinoDictSpace(Sapientino):
     """
-    A Breakout environment with a dictionary state space.
+    A Sapientino environment with a dictionary state space.
 
     The components of the space are:
     - Robot x coordinate (Discrete)
@@ -64,4 +67,4 @@ class SapientinoDictSpace(Sapientino):
 
     def observe(self, state: SapientinoState):
         """Observe the state."""
-        return state.to_dict()
+        return cast(SapientinoStateSingleRobot, state).to_dict()

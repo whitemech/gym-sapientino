@@ -9,3 +9,4 @@ _.observation_space  # unused property (gym_sapientino/sapientino_env.py:665)
 encode  # unused function (gym_sapientino/utils.py:28)
 decode  # unused function (gym_sapientino/utils.py:47)
 _.observation_space  # unused property (gym_sapientino/wrappers/dict_space.py:52)
+Robot.id  # unuser property
