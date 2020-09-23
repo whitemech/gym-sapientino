@@ -23,7 +23,7 @@
 """Define basic types."""
 
 from enum import Enum
-from typing import Dict, Union
+from typing import Dict, Sequence, Union
 
 
 class NormalCommand(Enum):
@@ -140,3 +140,5 @@ class Colors(Enum):
 
 
 color2int: Dict[Colors, int] = {c: i for i, c in enumerate(list(Colors))}
+
+ACTION_TYPE = Sequence[COMMAND_TYPES]

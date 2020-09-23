@@ -22,8 +22,8 @@
 
 """State representiations for different Sapientino game."""
 
-from abc import ABC, abstractmethod
-from typing import List, Sequence, Tuple
+from abc import ABC
+from typing import Dict, List, Sequence, Tuple
 
 from numpy import clip
 
@@ -47,7 +47,14 @@ class SapientinoState(ABC):
 
         self.score = 0
         self._grid = SapientinoGrid(config)
-        self._robots: List[Robot] = []
+        self._robots: List[Robot] = [
+            Robot(config, 1 + 2 * i, 2, Direction.UP, i)
+            for i in range(config.nb_robots)
+        ]
+        self._last_commands: List[COMMAND_TYPES] = [
+            NormalCommand.NOP if ac.differential else DifferentialCommand.NOP
+            for ac in self.config.agent_configs
+        ]
 
     @property
     def grid(self) -> SapientinoGrid:
@@ -59,60 +66,67 @@ class SapientinoState(ABC):
         """Get the list of robots."""
         return tuple(self._robots)
 
-    @abstractmethod
-    def step(self, command: COMMAND_TYPES) -> float:
+    def step(self, commands: Sequence[COMMAND_TYPES]) -> float:
         """Do a step."""
-        raise NotImplementedError
+        assert len(commands) == len(self.robots), "Some commands are missing."
+        total_reward = 0.0
+
+        next_robots = [r.step(c) for c, r in zip(commands, self.robots)]
+        self._last_commands = list(commands)
+
+        for i in range(len(next_robots)):
+            reward, next_robots[i] = self._force_border_constraints(next_robots[i])
+            total_reward += reward
+
+            self._do_beep(next_robots[i], commands[i])
+
+        total_reward += self.config.reward_per_step
+        self._robots = next_robots
+        return total_reward
 
     def reset(self) -> "SapientinoState":
         """Reset the state."""
         return type(self)(self.config)
 
     @property
-    @abstractmethod
     def is_finished(self) -> bool:
         """Check whether the game is finished."""
+        return False
 
     @property
-    @abstractmethod
+    def current_cells(self) -> Sequence[Cell]:
+        """Get the current cell."""
+        return [self.grid.cells[r.position] for r in self._robots]
+
+    @property
     def last_commands(self) -> Sequence[COMMAND_TYPES]:
         """Get the list of last commands."""
+        return self._last_commands
 
+    def to_dict(self) -> Dict:
+        """Encode into a dictionary."""
+        return {
+            "positions": [(r.x, r.y) for r in self.robots],
+            "thetas": [r.encoded_theta for r in self.robots],
+            "beeps": [int(c == c.BEEP) for c in self._last_commands],
+            "colors": [c.encoded_color for c in self.current_cells],
+        }
 
-class SapientinoStateSingleRobot(SapientinoState):
-    """The state of the game (one robot)."""
-
-    def __init__(self, config: SapientinoConfiguration):
-        """Initialize the state."""
-        super().__init__(config)
-
-        assert config.nb_robots == 1, "Can support only one robot."
-        self._robots = [Robot(config, 3, 2, Direction.UP, 0)]
-        self.last_command: COMMAND_TYPES = (
-            NormalCommand.NOP if config.differential else DifferentialCommand.NOP
-        )
-
-    @property
-    def robot(self) -> Robot:
-        """Gee the robot."""
-        return self._robots[0]
-
-    def step(self, command: COMMAND_TYPES) -> float:
-        """Do a step."""
+    def _force_border_constraints(self, r: Robot) -> Tuple[float, Robot]:
         reward = 0.0
-
-        self._robots[0] = self.robot.step(command)
-        self.last_command = command
-
-        if not (0 <= self.robot.x < self.config.columns):
+        x, y = r.x, r.y
+        if not (0 <= r.x < self.config.columns):
             reward += self.config.reward_outside_grid
-            self.robot.x = int(clip(self.robot.x, 0, self.config.columns - 1))
-        if not (0 <= self.robot.y < self.config.rows):
+            x = int(clip(r.x, 0, self.config.columns - 1))
+        if not (0 <= r.y < self.config.rows):
             reward += self.config.reward_outside_grid
-            self.robot.y = int(clip(self.robot.y, 0, self.config.rows - 1))
+            y = int(clip(r.y, 0, self.config.rows - 1))
+        return reward, r.move(x, y)
 
+    def _do_beep(self, robot: Robot, command: COMMAND_TYPES) -> float:
+        reward = 0.0
         if command == command.BEEP:
-            position = self.robot.x, self.robot.y
+            position = robot.x, robot.y
             cell = self.grid.cells[position]
             cell.beep()
             if cell.color != Colors.BLANK:
@@ -120,42 +134,9 @@ class SapientinoStateSingleRobot(SapientinoState):
             if cell.bip_count >= 2:
                 reward += self.config.reward_duplicate_beep
 
-        reward += self.config.reward_per_step
         return reward
-
-    @property
-    def last_command_beep(self) -> bool:
-        """Return whether the last command was a beep."""
-        return self.last_command.value == 4
-
-    def to_dict(self) -> dict:
-        """Encode into a dictionary."""
-        return {
-            "x": self.robot.x,
-            "y": self.robot.y,
-            "theta": self.robot.encoded_theta,
-            "beep": int(self.last_command_beep),  # 0 or 1
-            "color": self.current_cell.encoded_color,
-        }
-
-    @property
-    def current_cell(self) -> Cell:
-        """Get the current cell."""
-        return self.grid.cells[self.robot.position]
-
-    @property
-    def is_finished(self) -> bool:
-        """Check whether the game has ended."""
-        return False
-
-    @property
-    def last_commands(self) -> Sequence[COMMAND_TYPES]:
-        """Get last commands."""
-        return [self.last_command]
 
 
 def make_state(config: SapientinoConfiguration) -> SapientinoState:
     """Make the state, according to the configuration."""
-    if config.nb_robots == 1:
-        return SapientinoStateSingleRobot(config)
-    raise ValueError
+    return SapientinoState(config)

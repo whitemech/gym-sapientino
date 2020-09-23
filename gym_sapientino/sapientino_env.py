@@ -23,17 +23,13 @@
 """Sapientino environment with OpenAI Gym interface."""
 
 from abc import ABC, abstractmethod
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 import gym as gym
 import pygame
 
 from gym_sapientino.core.configurations import SapientinoConfiguration
-from gym_sapientino.core.states import (
-    SapientinoState,
-    SapientinoStateSingleRobot,
-    make_state,
-)
+from gym_sapientino.core.states import SapientinoState, make_state
 from gym_sapientino.rendering.base import Renderer
 from gym_sapientino.rendering.pygame import PygameRenderer
 
@@ -59,9 +55,9 @@ class Sapientino(gym.Env, ABC):
     @property
     def observation_space(self) -> gym.Space:
         """Get the observation space."""
-        return self.configuration.action_space
+        return self.configuration.observation_space
 
-    def step(self, action: int):
+    def step(self, action: Any):
         """Execute an action."""
         command = self.configuration.get_action(action)
         reward = self.state.step(command)
@@ -72,7 +68,7 @@ class Sapientino(gym.Env, ABC):
 
     def reset(self):
         """Reset the environment."""
-        self.state = SapientinoStateSingleRobot(self.configuration)
+        self.state = make_state(self.configuration)
         if self.viewer is not None:
             self.viewer.reset(self.state)
         return self.observe(self.state)
@@ -122,6 +118,6 @@ class Sapientino(gym.Env, ABC):
                 elif event.key == pygame.K_SPACE:
                     cmd = 4
 
-                self.step(cmd)
+                self.step([cmd])
                 self.render()
         self.close()

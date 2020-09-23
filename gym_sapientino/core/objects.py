@@ -61,6 +61,10 @@ class Robot:
         """Get the position."""
         return self.x, self.y
 
+    def move(self, x: int, y: int) -> "Robot":
+        """Move to a location."""
+        return Robot(self.config, x, y, self.direction, self.id)
+
     def step(self, command: COMMAND_TYPES) -> "Robot":
         """Compute the next location."""
         if isinstance(command, NormalCommand):

@@ -22,12 +22,14 @@
 
 """Classes for the environment configurations."""
 from dataclasses import dataclass
-from typing import Optional
+from typing import Tuple
 
 import gym
 from gym.spaces import Discrete, MultiDiscrete
+from gym.spaces import Tuple as GymTuple
 
 from gym_sapientino.core.types import (
+    ACTION_TYPE,
     COMMAND_TYPES,
     DifferentialCommand,
     Direction,
@@ -37,15 +39,37 @@ from gym_sapientino.core.types import (
 
 
 @dataclass(frozen=True)
+class SapientinoAgentConfiguration:
+    """Configuration for a single agent."""
+
+    differential: bool = False
+
+    @property
+    def action_space(self) -> gym.Space:
+        """Get the action space.."""
+        if self.differential:
+            return Discrete(len(DifferentialCommand))
+        else:
+            return Discrete(len(NormalCommand))
+
+    def get_action(self, action: int) -> COMMAND_TYPES:
+        """Get the action."""
+        if self.differential:
+            return DifferentialCommand(action)
+        else:
+            return NormalCommand(action)
+
+
+@dataclass(frozen=True)
 class SapientinoConfiguration:
     """A class to represent Sapientino configurations."""
 
     # game configurations
+    agent_configs: Tuple[SapientinoAgentConfiguration, ...] = (
+        SapientinoAgentConfiguration(),
+    )
     rows: int = 5
     columns: int = 7
-    nb_robots: int = 1
-    differential: bool = False
-    _horizon: Optional[int] = None
     reward_outside_grid: float = -1.0
     reward_duplicate_beep: float = -1.0
     reward_per_step: float = -0.01
@@ -55,6 +79,39 @@ class SapientinoConfiguration:
     offy: int = 100
     radius: int = 5
     size_square: int = 40
+
+    @property
+    def nb_robots(self) -> int:
+        """Get the number of robots."""
+        return len(self.agent_configs)
+
+    @property
+    def agent_config(self) -> "SapientinoAgentConfiguration":
+        """Get the agent configuration."""
+        assert self.nb_robots == 1, "Can be called only in single-agent mode."
+        return self.agent_configs[0]
+
+    @property
+    def observation_space(self) -> gym.Space:
+        """Get the observation space."""
+
+        def get_observation_space(agent_config):
+            if agent_config.differential:
+                # 4 is the number of possible direction - nord, sud, west, east
+                return MultiDiscrete(
+                    (self.columns, self.rows, Direction.nb_directions())
+                )
+            else:
+                return MultiDiscrete((self.columns, self.rows))
+
+        agent_spaces = tuple(map(get_observation_space, self.agent_configs))
+        return agent_spaces[0] if len(agent_spaces) == 1 else GymTuple(agent_spaces)
+
+    @property
+    def action_space(self) -> gym.Space:
+        """Get the action space of the robots."""
+        spaces = tuple(ac.action_space for ac in self.agent_configs)
+        return spaces[0] if len(spaces) == 1 else GymTuple(spaces)
 
     @property
     def win_width(self) -> int:
@@ -73,30 +130,6 @@ class SapientinoConfiguration:
             return 520
 
     @property
-    def action_space(self) -> gym.Space:
-        """Get the action space.."""
-        if self.differential:
-            return Discrete(len(DifferentialCommand))
-        else:
-            return Discrete(len(NormalCommand))
-
-    @property
-    def observation_space(self) -> gym.Space:
-        """Get the observation space."""
-        if self.differential:
-            # 4 is the number of possible direction - nord, sud, west, east
-            return MultiDiscrete((self.columns, self.rows, Direction.nb_directions()))
-        else:
-            return MultiDiscrete((self.columns, self.rows))
-
-    def get_action(self, action: int) -> COMMAND_TYPES:
-        """Get the action."""
-        if self.differential:
-            return DifferentialCommand(action)
-        else:
-            return NormalCommand(action)
-
-    @property
     def nb_theta(self):
         """Get the number of orientations."""
         return Direction.nb_directions()
@@ -105,3 +138,7 @@ class SapientinoConfiguration:
     def nb_colors(self):
         """Get the number of colors."""
         return len(color2int)
+
+    def get_action(self, action) -> ACTION_TYPE:
+        """Get the action."""
+        return [ac.get_action(a) for a, ac in zip(action, self.agent_configs)]

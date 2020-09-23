@@ -31,6 +31,16 @@ from gym_sapientino.core.states import SapientinoState
 from gym_sapientino.core.types import Colors
 from gym_sapientino.rendering.base import Renderer
 
+ROBOT_COLORS = [
+    "red",
+    "lightblue",
+    "orange",
+    "yellow",
+    "white",
+    "rosybrown",
+    "pink",
+]
+
 
 class PygameRenderer(Renderer):
     """Pygame-based renderer."""
@@ -105,7 +115,7 @@ class PygameRenderer(Renderer):
         dy = int(r.config.offy + (r.config.rows - r.y - 1) * r.config.size_square)
         pygame.draw.circle(
             self._screen,
-            pygame.color.THECOLORS["orange"],
+            ROBOT_COLORS[r.id],
             [dx + r.config.size_square // 2, dy + r.config.size_square // 2],
             2 * r.config.radius,
             0,

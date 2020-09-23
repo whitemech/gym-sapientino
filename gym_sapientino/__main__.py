@@ -25,6 +25,7 @@
 
 import argparse
 
+from gym_sapientino.core.configurations import SapientinoAgentConfiguration
 from gym_sapientino.sapientino_env import SapientinoConfiguration
 from gym_sapientino.wrappers.dict_space import SapientinoDictSpace
 
@@ -41,5 +42,7 @@ def parse_arguments():
 
 if __name__ == "__main__":
     args = parse_arguments()
-    env = SapientinoDictSpace(SapientinoConfiguration(differential=args.differential))
+    c = SapientinoAgentConfiguration(args.differential)
+    agent_configs = (c,)
+    env = SapientinoDictSpace(SapientinoConfiguration(agent_configs))
     env.play()
