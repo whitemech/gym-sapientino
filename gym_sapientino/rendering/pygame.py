@@ -74,6 +74,7 @@ class PygameRenderer(Renderer):
 
     def reset(self, state: "SapientinoState") -> None:
         """Reset the state."""
+        self._state = state
 
     def close(self):
         """Close the renderer."""

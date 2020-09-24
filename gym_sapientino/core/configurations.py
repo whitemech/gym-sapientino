@@ -26,7 +26,6 @@ from typing import Tuple
 
 import gym
 from gym.spaces import Discrete, MultiDiscrete
-from gym.spaces import Tuple as GymTuple
 
 from gym_sapientino.core.types import (
     ACTION_TYPE,
@@ -45,7 +44,7 @@ class SapientinoAgentConfiguration:
     differential: bool = False
 
     @property
-    def action_space(self) -> gym.Space:
+    def action_space(self) -> gym.spaces.Discrete:
         """Get the action space.."""
         if self.differential:
             return Discrete(len(DifferentialCommand))
@@ -92,26 +91,31 @@ class SapientinoConfiguration:
         return self.agent_configs[0]
 
     @property
-    def observation_space(self) -> gym.Space:
+    def observation_space(self) -> gym.spaces.MultiDiscrete:
         """Get the observation space."""
 
         def get_observation_space(agent_config):
             if agent_config.differential:
-                # 4 is the number of possible direction - nord, sud, west, east
                 return MultiDiscrete(
                     (self.columns, self.rows, Direction.nb_directions())
                 )
             else:
                 return MultiDiscrete((self.columns, self.rows))
 
-        agent_spaces = tuple(map(get_observation_space, self.agent_configs))
-        return agent_spaces[0] if len(agent_spaces) == 1 else GymTuple(agent_spaces)
+        agent_spaces = tuple(
+            x
+            for sublist in map(
+                lambda x: get_observation_space(x).nvec, self.agent_configs
+            )
+            for x in sublist
+        )
+        return MultiDiscrete(agent_spaces)
 
     @property
-    def action_space(self) -> gym.Space:
+    def action_space(self) -> MultiDiscrete:
         """Get the action space of the robots."""
-        spaces = tuple(ac.action_space for ac in self.agent_configs)
-        return spaces[0] if len(spaces) == 1 else GymTuple(spaces)
+        spaces = tuple(ac.action_space.n for ac in self.agent_configs)
+        return MultiDiscrete(spaces)
 
     @property
     def win_width(self) -> int:
