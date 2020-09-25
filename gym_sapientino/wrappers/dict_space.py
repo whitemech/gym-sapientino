@@ -52,16 +52,23 @@ class SapientinoDictSpace(Sapientino):
         self._color_space = Discrete(self.configuration.nb_colors)
 
     @property
-    def observation_space(self) -> gym.Space:
+    def observation_space(self) -> gym.spaces.Tuple:
         """Get the observation space."""
-        return Dict(
-            {
+
+        def get_agent_dict_space(i: int):
+            agent_config = self.configuration.agent_configs[i]
+            d = {
                 "x": self._x_space,
                 "y": self._y_space,
-                "theta": self._theta_space,
                 "beep": self._beep_space,
                 "color": self._color_space,
             }
+            if agent_config.differential:
+                d["theta"] = self._theta_space
+            return Dict(d)
+
+        return gym.spaces.Tuple(
+            tuple(map(get_agent_dict_space, range(self.configuration.nb_robots)))
         )
 
     def observe(self, state: SapientinoState):

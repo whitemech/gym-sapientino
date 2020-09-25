@@ -26,6 +26,7 @@ from typing import Tuple
 
 import gym
 from gym.spaces import Discrete, MultiDiscrete
+from gym.spaces import Tuple as GymTuple
 
 from gym_sapientino.core.types import (
     ACTION_TYPE,
@@ -91,31 +92,24 @@ class SapientinoConfiguration:
         return self.agent_configs[0]
 
     @property
-    def observation_space(self) -> gym.spaces.MultiDiscrete:
+    def observation_space(self) -> gym.spaces.Tuple:
         """Get the observation space."""
 
         def get_observation_space(agent_config):
+            postfix = 2, self.nb_colors
             if agent_config.differential:
                 return MultiDiscrete(
-                    (self.columns, self.rows, Direction.nb_directions())
+                    (self.columns, self.rows, Direction.nb_directions()) + postfix
                 )
-            else:
-                return MultiDiscrete((self.columns, self.rows))
+            return MultiDiscrete((self.columns, self.rows) + postfix)
 
-        agent_spaces = tuple(
-            x
-            for sublist in map(
-                lambda x: get_observation_space(x).nvec, self.agent_configs
-            )
-            for x in sublist
-        )
-        return MultiDiscrete(agent_spaces)
+        return GymTuple(tuple(map(get_observation_space, self.agent_configs)))
 
     @property
-    def action_space(self) -> MultiDiscrete:
+    def action_space(self) -> gym.spaces.Tuple:
         """Get the action space of the robots."""
-        spaces = tuple(ac.action_space.n for ac in self.agent_configs)
-        return MultiDiscrete(spaces)
+        spaces = tuple(Discrete(ac.action_space.n) for ac in self.agent_configs)
+        return gym.spaces.Tuple(spaces)
 
     @property
     def win_width(self) -> int:

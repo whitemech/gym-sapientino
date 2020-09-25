@@ -103,14 +103,18 @@ class SapientinoState(ABC):
         """Get the list of last commands."""
         return self._last_commands
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> Tuple[Dict, ...]:
         """Encode into a dictionary."""
-        return {
-            "positions": [(r.x, r.y) for r in self.robots],
-            "thetas": [r.encoded_theta for r in self.robots],
-            "beeps": [int(c == c.BEEP) for c in self._last_commands],
-            "colors": [c.encoded_color for c in self.current_cells],
-        }
+        return tuple(
+            {
+                "x": r.x,
+                "y": r.y,
+                "theta": r.encoded_theta,
+                "beep": int(self.last_commands[i] == self.last_commands[i].BEEP),
+                "color": self.current_cells[i].encoded_color,
+            }
+            for i, r in enumerate(self.robots)
+        )
 
     def _force_border_constraints(self, r: Robot) -> Tuple[float, Robot]:
         reward = 0.0
