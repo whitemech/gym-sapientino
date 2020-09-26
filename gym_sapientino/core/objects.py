@@ -23,7 +23,6 @@
 """Objects of the game."""
 
 import itertools
-from collections import defaultdict
 from typing import Dict, Tuple
 
 from gym_sapientino.core.configurations import SapientinoConfiguration
@@ -149,7 +148,7 @@ class SapientinoGrid:
         self.columns = config.columns
 
         self.cells: Dict[Tuple[int, int], Cell] = {}
-        self.color_count: Dict[Colors, int] = defaultdict(lambda: 0)
+        self.color_count: Dict[Colors, int] = {}
 
         self._populate_token_grid()
 

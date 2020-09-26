@@ -121,3 +121,16 @@ class Sapientino(gym.Env, ABC):
                 self.step([cmd])
                 self.render()
         self.close()
+
+    def __getstate__(self):
+        """Get the state."""
+        state = self.__dict__.copy()
+        # Remove the unpicklable entries.
+        state.pop("viewer")
+        return state
+
+    def __setstate__(self, state):
+        """Set the state."""
+        # Restore instance attributes (i.e., filename and lineno).
+        self.__dict__.update(state)
+        self.viewer = None

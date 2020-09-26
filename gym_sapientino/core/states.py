@@ -78,7 +78,7 @@ class SapientinoState(ABC):
             reward, next_robots[i] = self._force_border_constraints(next_robots[i])
             total_reward += reward
 
-            self._do_beep(next_robots[i], commands[i])
+            total_reward += self._do_beep(next_robots[i], commands[i])
 
         total_reward += self.config.reward_per_step
         self._robots = next_robots
@@ -134,6 +134,8 @@ class SapientinoState(ABC):
             cell = self.grid.cells[position]
             cell.beep()
             if cell.color != Colors.BLANK:
+                if cell.color not in self.grid.color_count:
+                    self.grid.color_count[cell.color] = 0
                 self.grid.color_count[cell.color] += 1
             if cell.bip_count >= 2:
                 reward += self.config.reward_duplicate_beep
