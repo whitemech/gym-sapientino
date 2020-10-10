@@ -158,3 +158,14 @@ Copyright 2019-2020 Marco Favorito, Luca Iocchi
 
 The code is largely inspired by [RLGames](https://github.com/iocchi/RLGames.git)
 
+If you want to use this environment in your research, please consider
+citing this conference paper:
+
+```
+@inproceedings{Giacomo2019FoundationsFR,
+  title={Foundations for Restraining Bolts: Reinforcement Learning with LTLf/LDLf Restraining Specifications},
+  author={Giuseppe De Giacomo and L. Iocchi and Marco Favorito and F. Patrizi},
+  booktitle={ICAPS},
+  year={2019}
+}
+```
