@@ -45,18 +45,39 @@ ROBOT_COLORS = [
 class PygameRenderer(Renderer):
     """Pygame-based renderer."""
 
-    def __init__(self, state: SapientinoState):
+    def __init__(
+        self,
+        state: SapientinoState,
+        offx: int = 40,
+        offy: int = 100,
+        radius: int = 5,
+        size_square: int = 40,
+    ):
         """Initialize the Pygame-based renderer."""
         super().__init__(state)
+
+        # rendering configurations
+        self.offx: int = offx
+        self.offy: int = offy
+        self.radius: int = radius
+        self.size_square: int = size_square
 
         self._type_to_handler: Dict[Type, Callable] = {Robot: self._draw_robot}
 
         pygame.init()
         pygame.display.set_caption("Sapientino")
-        self._screen = pygame.display.set_mode(
-            [self.config.win_width, self.config.win_height]
-        )
+        self._screen = pygame.display.set_mode([self.win_width, self.win_height])
         self.myfont = pygame.font.SysFont("Arial", 30)
+
+    @property
+    def win_width(self) -> int:
+        """Get the window width."""
+        return self.size_square * self.config.columns + self.offx * 2
+
+    @property
+    def win_height(self) -> int:
+        """Get the window height."""
+        return self.size_square * self.config.rows + self.offy + (self.offy // 2)
 
     def render(self, mode="human") -> None:
         """Render."""
@@ -112,33 +133,30 @@ class PygameRenderer(Renderer):
 
     def _draw_robot(self, r: Robot) -> None:
         """Draw a robot."""
-        dx = int(r.config.offx + r.x * r.config.size_square)
-        dy = int(r.config.offy + (r.config.rows - r.y - 1) * r.config.size_square)
+        dx = int(self.offx + r.x * self.size_square)
+        dy = int(self.offy + (self.config.rows - r.y - 1) * self.size_square)
         pygame.draw.circle(
             self._screen,
             ROBOT_COLORS[r.id],
-            [dx + r.config.size_square // 2, dy + r.config.size_square // 2],
-            2 * r.config.radius,
+            [dx + self.size_square // 2, dy + self.size_square // 2],
+            2 * self.radius,
             0,
         )
         ox = 0
         oy = 0
         if r.direction.th == 0:  # right
-            ox = r.config.radius
+            ox = self.radius
         elif r.direction.th == 90:  # up
-            oy = -r.config.radius
+            oy = -self.radius
         elif r.direction.th == 180:  # left
-            ox = -r.config.radius
+            ox = -self.radius
         elif r.direction.th == 270:  # down
-            oy = r.config.radius
+            oy = self.radius
 
         pygame.draw.circle(
             self._screen,
             pygame.color.THECOLORS["black"],
-            [
-                dx + r.config.size_square // 2 + ox,
-                dy + r.config.size_square // 2 + oy,
-            ],
+            [dx + self.size_square // 2 + ox, dy + self.size_square // 2 + oy],
             5,
             0,
         )
@@ -146,21 +164,21 @@ class PygameRenderer(Renderer):
     def _draw_grid(self, g: SapientinoGrid):
         """Draw the grid."""
         for i in range(0, g.columns + 1):
-            ox = g.config.offx + i * g.config.size_square
+            ox = self.offx + i * self.size_square
             pygame.draw.line(
                 self._screen,
                 pygame.color.THECOLORS["black"],
-                [ox, g.config.offy],
-                [ox, g.config.offy + g.rows * g.config.size_square],
+                [ox, self.offy],
+                [ox, self.offy + g.rows * self.size_square],
             )
 
         for i in range(0, g.rows + 1):
-            oy = g.config.offy + i * g.config.size_square
+            oy = self.offy + i * self.size_square
             pygame.draw.line(
                 self._screen,
                 pygame.color.THECOLORS["black"],
-                [g.config.offx, oy],
-                [g.config.offx + g.columns * g.config.size_square, oy],
+                [self.offx, oy],
+                [self.offx + g.columns * self.size_square, oy],
             )
 
         for cell in g.cells.values():
@@ -170,13 +188,13 @@ class PygameRenderer(Renderer):
         """Draw a cell."""
         if c.color == Colors.BLANK:
             return
-        dx = int(c.config.offx + c.x * c.config.size_square)
-        dy = int(c.config.offy + (c.config.rows - c.y - 1) * c.config.size_square)
+        dx = int(self.offx + c.x * self.size_square)
+        dy = int(self.offy + (self.config.rows - c.y - 1) * self.size_square)
         sqsz = (
             dx + 5,
             dy + 5,
-            c.config.size_square - 10,
-            c.config.size_square - 10,
+            self.size_square - 10,
+            self.size_square - 10,
         )
         pygame.draw.rect(self._screen, pygame.color.THECOLORS[str(c.color)], sqsz)
         if c.bip_count >= 1:
@@ -186,7 +204,7 @@ class PygameRenderer(Renderer):
                 (
                     dx + 15,
                     dy + 15,
-                    c.config.size_square - 30,
-                    c.config.size_square - 30,
+                    self.size_square - 30,
+                    self.size_square - 30,
                 ),
             )

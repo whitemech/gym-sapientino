@@ -74,12 +74,6 @@ class SapientinoConfiguration:
     reward_duplicate_beep: float = -1.0
     reward_per_step: float = -0.01
 
-    # rendering configurations
-    offx: int = 40
-    offy: int = 100
-    radius: int = 5
-    size_square: int = 40
-
     @property
     def nb_robots(self) -> int:
         """Get the number of robots."""
@@ -110,22 +104,6 @@ class SapientinoConfiguration:
         """Get the action space of the robots."""
         spaces = tuple(Discrete(ac.action_space.n) for ac in self.agent_configs)
         return gym.spaces.Tuple(spaces)
-
-    @property
-    def win_width(self) -> int:
-        """Get the window width."""
-        if self.columns > 10:
-            return self.size_square * (self.columns - 10)
-        else:
-            return 480
-
-    @property
-    def win_height(self) -> int:
-        """Get the window height."""
-        if self.rows > 10:
-            return self.size_square * (self.rows - 10)
-        else:
-            return 520
 
     @property
     def nb_theta(self):
