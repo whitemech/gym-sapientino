@@ -4,18 +4,15 @@ repo_url: https://github.com/whitemech/gym-sapientino
 
 nav:
 - Home: index.md
+- Quickstart: "quickstart.ipynb"
 - Authors: authors.md
 - How to contribute: contributing.md
 - Release History: history.md
 
 
 plugins:
-- mknotebooks:
+- mkdocs-jupyter:
     execute: false
-    write_markdown: false
-    #preamble: ""
-    #enable_default_jupyter_cell_styling: false
-    #enable_default_pandas_dataframe_styling: false
 - search
 
 theme:

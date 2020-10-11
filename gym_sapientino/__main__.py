@@ -25,7 +25,11 @@
 
 import argparse
 
+from gym.wrappers import Monitor
+
+from gym_sapientino import play
 from gym_sapientino.core.configurations import SapientinoAgentConfiguration
+from gym_sapientino.play import FrameCapture
 from gym_sapientino.sapientino_env import SapientinoConfiguration
 from gym_sapientino.wrappers.dict_space import SapientinoDictSpace
 
@@ -36,6 +40,8 @@ def parse_arguments():
     parser.add_argument(
         "--differential", action="store_true", help="Differential action space."
     )
+    parser.add_argument("--record", action="store_true", help="Record the play.")
+    parser.add_argument("--frames", action="store_true", help="Record single frames.")
 
     return parser.parse_args()
 
@@ -45,4 +51,10 @@ if __name__ == "__main__":
     c = SapientinoAgentConfiguration(args.differential)
     agent_configs = (c,)
     env = SapientinoDictSpace(SapientinoConfiguration(agent_configs))
-    env.play()
+    if args.frames:
+        env = FrameCapture("frames", env)
+    if args.record:
+        env = Monitor(env, "recordings", force=True)
+        env.metadata["video.frames_per_second"] = 2  # type: ignore
+
+    play.play(env)

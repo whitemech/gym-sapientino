@@ -26,7 +26,6 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
 
 import gym as gym
-import pygame
 
 from gym_sapientino.core.configurations import SapientinoConfiguration
 from gym_sapientino.core.states import SapientinoState, make_state
@@ -93,34 +92,6 @@ class Sapientino(gym.Env, ABC):
         :param state: the state of the game
         :return: an instance of a gym.Space
         """
-
-    def play(self) -> None:
-        """Play interactively with the environment."""
-        print("Press 'Q' to quit.")
-        assert self.configuration.nb_robots == 1, "Can only play with one robot."
-        self.reset()
-        self.render()
-        quitted = False
-        while not quitted:
-            event = pygame.event.wait()
-            cmd = 5
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_q:
-                    quitted = True
-                elif event.key == pygame.K_LEFT:
-                    cmd = 0
-                elif event.key == pygame.K_UP:
-                    cmd = 1
-                elif event.key == pygame.K_RIGHT:
-                    cmd = 2
-                elif event.key == pygame.K_DOWN:
-                    cmd = 3
-                elif event.key == pygame.K_SPACE:
-                    cmd = 4
-
-                self.step([cmd])
-                self.render()
-        self.close()
 
     def __getstate__(self):
         """Get the state."""
