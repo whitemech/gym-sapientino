@@ -12,7 +12,7 @@
       
       
       <link rel="shortcut icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-5.5.13">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-5.5.14">
     
     
       
@@ -20,7 +20,7 @@
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.077507d7.min.css">
+      <link rel="stylesheet" href="assets/stylesheets/main.d3202873.min.css">
       
       
     
@@ -33,12 +33,6 @@
       
     
     
-    
-      <link rel="stylesheet" href="css/ansi-colours.css">
-    
-      <link rel="stylesheet" href="css/jupyter-cells.css">
-    
-      <link rel="stylesheet" href="css/pandas-dataframe.css">
     
     
       
@@ -286,6 +280,18 @@
 
 
   <li class="md-nav__item">
+    <a href="quickstart/" title="Quickstart" class="md-nav__link">
+      Quickstart
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
     <a href="authors/" title="Authors" class="md-nav__link">
       Authors
     </a>
@@ -444,7 +450,6 @@
     <img alt="GitHub" src="https://img.shields.io/github/license/whitemech/gym-sapientino">
   </a>
 </p>
-
 <p align="center">
   <a href="">
     <img alt="test" src="https://github.com/whitemech/gym-sapientino/workflows/test/badge.svg">
@@ -459,7 +464,6 @@
     <img alt="codecov" src="https://codecov.io/gh/whitemech/gym-sapientino/branch/master/graph/badge.svg?token=FG3ATGP5P5">
   </a>
 </p>
-
 <p align="center">
   <a href="https://img.shields.io/badge/flake8-checked-blueviolet">
     <img alt="" src="https://img.shields.io/badge/flake8-checked-blueviolet">
@@ -502,18 +506,15 @@ should implement the actual reward by wrapping the environment. </p>
 <span class="err">    libsdl1.2-dev  libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev libfreetype6-dev</span>
 </code></pre></div>
 
-
 <p>On MacOS (not tested):</p>
 <div class="codehilite"><pre><span></span><code><span class="err">brew install sdl sdl_ttf sdl_image sdl_mixer portmidi  # brew or use equivalent means</span>
 <span class="err">conda install -c https://conda.binstar.org/quasiben pygame  # using Anaconda</span>
 </code></pre></div>
 
-
 <h2 id="install">Install</h2>
 <p>Install with <code>pip</code>:</p>
 <div class="codehilite"><pre><span></span><code><span class="err">pip install gym_sapientino</span>
 </code></pre></div>
-
 
 <p>Or, install from source:</p>
 <div class="codehilite"><pre><span></span><code><span class="err">git clone https://github.com/whitemech/gym-sapientino.git</span>
@@ -521,29 +522,25 @@ should implement the actual reward by wrapping the environment. </p>
 <span class="err">pip install .</span>
 </code></pre></div>
 
-
 <h2 id="development">Development</h2>
 <ul>
 <li>clone the repo:</li>
 </ul>
-<div class="codehilite"><pre><span></span><code>git clone https://github.com/whitemech/gym-sapientino.git
+<div class="bash codehilite"><pre><span></span><code>git clone https://github.com/whitemech/gym-sapientino.git
 <span class="nb">cd</span> gym-sapientino
 </code></pre></div>
-
 
 <ul>
 <li>Create/activate the virtual environment:</li>
 </ul>
-<div class="codehilite"><pre><span></span><code>poetry shell --python<span class="o">=</span>python3.7
+<div class="bash codehilite"><pre><span></span><code>poetry shell --python<span class="o">=</span>python3.7
 </code></pre></div>
-
 
 <ul>
 <li>Install development dependencies:</li>
 </ul>
-<div class="codehilite"><pre><span></span><code>poetry install
+<div class="bash codehilite"><pre><span></span><code>poetry install
 </code></pre></div>
-
 
 <h2 id="tests">Tests</h2>
 <p>To run tests: <code>tox</code></p>
@@ -568,6 +565,15 @@ and then go to <a href="http://localhost:8000">http://localhost:8000</a></p>
 </ul>
 <h2 id="credits">Credits</h2>
 <p>The code is largely inspired by <a href="https://github.com/iocchi/RLGames.git">RLGames</a></p>
+<p>If you want to use this environment in your research, please consider
+citing this conference paper:</p>
+<div class="codehilite"><pre><span></span><code><span class="err">@inproceedings{Giacomo2019FoundationsFR,</span>
+<span class="err">  title={Foundations for Restraining Bolts: Reinforcement Learning with LTLf/LDLf Restraining Specifications},</span>
+<span class="err">  author={Giuseppe De Giacomo and L. Iocchi and Marco Favorito and F. Patrizi},</span>
+<span class="err">  booktitle={ICAPS},</span>
+<span class="err">  year={2019}</span>
+<span class="err">}</span>
+</code></pre></div>
                 
               
               
@@ -587,13 +593,13 @@ and then go to <a href="http://localhost:8000">http://localhost:8000</a></p>
       <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
         
         
-          <a href="authors/" title="Authors" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="quickstart/" title="Quickstart" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-footer-nav__title">
               <div class="md-ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Authors
+                Quickstart
               </div>
             </div>
             <div class="md-footer-nav__button md-icon">
