@@ -22,4 +22,14 @@
 
 """The 'Sapientino' OpenAI Gym Environment."""
 
-__version__ = "0.1.1"
+__version__ = "0.2.0"
+
+import gym
+
+from .wrappers import SapientinoDictSpace
+
+gym.register(
+    "Sapientino-v0",
+    entry_point="gym_sapientino:SapientinoDictSpace",
+    max_episode_steps=100,
+)
