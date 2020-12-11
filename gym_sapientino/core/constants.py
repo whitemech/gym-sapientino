@@ -21,33 +21,14 @@
 #
 
 """Constants of the game."""
+import inspect
+import os
+from pathlib import Path
 
-from gym_sapientino.core.types import Colors
 
-TOKENS = [
-    ["r1", Colors.RED.value, 0, 0],
-    ["r2", Colors.RED.value, 1, 1],
-    ["r3", Colors.RED.value, 6, 3],
-    ["g1", Colors.GREEN.value, 4, 0],
-    ["g2", Colors.GREEN.value, 5, 2],
-    ["g3", Colors.GREEN.value, 5, 4],
-    ["b1", Colors.BLUE.value, 1, 3],
-    ["b2", Colors.BLUE.value, 2, 4],
-    ["b3", Colors.BLUE.value, 6, 0],
-    ["p1", Colors.PINK.value, 2, 1],
-    ["p2", Colors.PINK.value, 2, 3],
-    ["p3", Colors.PINK.value, 4, 2],
-    ["n1", Colors.BROWN.value, 3, 0],
-    ["n2", Colors.BROWN.value, 3, 4],
-    ["n3", Colors.BROWN.value, 6, 1],
-    ["y1", Colors.GRAY.value, 0, 2],
-    ["y2", Colors.GRAY.value, 3, 1],
-    ["y3", Colors.GRAY.value, 4, 3],
-    ["u1", Colors.PURPLE.value, 0, 4],
-    ["u2", Colors.PURPLE.value, 1, 0],
-    ["u3", Colors.PURPLE.value, 5, 1],
-]
-
+PACKAGE_ROOT = Path(os.path.dirname(inspect.getfile(inspect.currentframe())), "..").resolve()  # type: ignore
+ASSETS_DIR: Path = PACKAGE_ROOT / "assets"
+DEFAULT_MAP_FILENAME = "default_map.txt"
 black = [0, 0, 0]
 white = [255, 255, 255]
 grey = [180, 180, 180]

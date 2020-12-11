@@ -21,9 +21,14 @@
 #
 
 """Tests for the Sapientino Gym environment."""
-from gym_sapientino import __version__
+from gym_sapientino import __version__, SapientinoDictSpace
 
 
 def test_version():
     """Test version."""
     assert __version__ == "0.2.0"
+
+
+def test_instantiation():
+    """Test instantiation of the environment."""
+    env = SapientinoDictSpace()

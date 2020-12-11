@@ -125,10 +125,12 @@ class Colors(Enum):
     RED = "red"
     GREEN = "green"
     BLUE = "blue"
+    YELLOW = "yellow"
     PINK = "pink"
     BROWN = "brown"
     GRAY = "gray"
     PURPLE = "purple"
+    ORANGE = "orange"
 
     def __str__(self) -> str:
         """Get the string representation."""
@@ -138,7 +140,23 @@ class Colors(Enum):
         """Get the integer representation."""
         return color2int[self]
 
+    @classmethod
+    def from_id(cls) -> "Colors":
+        """Get the color from the ID."""
+
 
 color2int: Dict[Colors, int] = {c: i for i, c in enumerate(list(Colors))}
+id2color: Dict[str, Colors] = {
+    " ": Colors.BLANK,
+    "r": Colors.RED,
+    "g": Colors.GREEN,
+    "b": Colors.BLUE,
+    "y": Colors.YELLOW,
+    "p": Colors.PINK,
+    "o": Colors.ORANGE,
+    "B": Colors.BROWN,
+    "G": Colors.GRAY,
+    "P": Colors.PURPLE
+}
 
 ACTION_TYPE = Sequence[COMMAND_TYPES]
