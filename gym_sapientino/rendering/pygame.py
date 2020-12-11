@@ -26,7 +26,7 @@ from typing import Any, Callable, Dict, Type
 import pygame
 
 from gym_sapientino.core.constants import white
-from gym_sapientino.core.grid import SapientinoGrid, Cell
+from gym_sapientino.core.grid import Cell, SapientinoGrid
 from gym_sapientino.core.objects import Robot
 from gym_sapientino.core.states import SapientinoState
 from gym_sapientino.core.types import Colors

@@ -25,7 +25,6 @@ import inspect
 import os
 from pathlib import Path
 
-
 PACKAGE_ROOT = Path(os.path.dirname(inspect.getfile(inspect.currentframe())), "..").resolve()  # type: ignore
 ASSETS_DIR: Path = PACKAGE_ROOT / "assets"
 DEFAULT_MAP_FILENAME = "default_map.txt"

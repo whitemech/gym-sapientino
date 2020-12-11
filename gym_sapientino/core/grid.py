@@ -22,7 +22,7 @@
 
 """Classes to represent a Sapientino map."""
 from pathlib import Path
-from typing import Dict, List, Iterator
+from typing import Dict, Iterator, List
 
 from gym_sapientino.core.types import Colors, color2int, id2color
 

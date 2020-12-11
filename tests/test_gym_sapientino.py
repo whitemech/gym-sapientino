@@ -21,7 +21,7 @@
 #
 
 """Tests for the Sapientino Gym environment."""
-from gym_sapientino import __version__, SapientinoDictSpace
+from gym_sapientino import SapientinoDictSpace, __version__
 
 
 def test_version():
@@ -31,4 +31,4 @@ def test_version():
 
 def test_instantiation():
     """Test instantiation of the environment."""
-    env = SapientinoDictSpace()
+    SapientinoDictSpace()

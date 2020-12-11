@@ -156,7 +156,7 @@ id2color: Dict[str, Colors] = {
     "o": Colors.ORANGE,
     "B": Colors.BROWN,
     "G": Colors.GRAY,
-    "P": Colors.PURPLE
+    "P": Colors.PURPLE,
 }
 
 ACTION_TYPE = Sequence[COMMAND_TYPES]

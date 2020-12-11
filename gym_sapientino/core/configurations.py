@@ -29,8 +29,8 @@ import gym
 from gym.spaces import Discrete, MultiDiscrete
 from gym.spaces import Tuple as GymTuple
 
-from gym_sapientino.core.constants import PACKAGE_ROOT, ASSETS_DIR, DEFAULT_MAP_FILENAME
-from gym_sapientino.core.grid import from_map, SapientinoGrid
+from gym_sapientino.core.constants import ASSETS_DIR, DEFAULT_MAP_FILENAME
+from gym_sapientino.core.grid import SapientinoGrid, from_map
 from gym_sapientino.core.types import (
     ACTION_TYPE,
     COMMAND_TYPES,
