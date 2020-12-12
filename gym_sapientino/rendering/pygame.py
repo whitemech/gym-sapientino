@@ -26,7 +26,8 @@ from typing import Any, Callable, Dict, Type
 import pygame
 
 from gym_sapientino.core.constants import white
-from gym_sapientino.core.objects import Cell, Robot, SapientinoGrid
+from gym_sapientino.core.grid import Cell, SapientinoGrid
+from gym_sapientino.core.objects import Robot
 from gym_sapientino.core.states import SapientinoState
 from gym_sapientino.core.types import Colors
 from gym_sapientino.rendering.base import Renderer
@@ -134,7 +135,7 @@ class PygameRenderer(Renderer):
     def _draw_robot(self, r: Robot) -> None:
         """Draw a robot."""
         dx = int(self.offx + r.x * self.size_square)
-        dy = int(self.offy + (self.config.rows - r.y - 1) * self.size_square)
+        dy = int(self.offy + r.y * self.size_square)
         pygame.draw.circle(
             self._screen,
             ROBOT_COLORS[r.id],
@@ -181,15 +182,15 @@ class PygameRenderer(Renderer):
                 [self.offx + g.columns * self.size_square, oy],
             )
 
-        for cell in g.cells.values():
-            self._draw_cell(cell)
+        for cell in g.iter_cells():
+            self._draw_cell(cell, g.get_bip_counts(cell))
 
-    def _draw_cell(self, c: Cell) -> None:
+    def _draw_cell(self, c: Cell, counts: int) -> None:
         """Draw a cell."""
         if c.color == Colors.BLANK:
             return
         dx = int(self.offx + c.x * self.size_square)
-        dy = int(self.offy + (self.config.rows - c.y - 1) * self.size_square)
+        dy = int(self.offy + c.y * self.size_square)
         sqsz = (
             dx + 5,
             dy + 5,
@@ -197,7 +198,7 @@ class PygameRenderer(Renderer):
             self.size_square - 10,
         )
         pygame.draw.rect(self._screen, pygame.color.THECOLORS[str(c.color)], sqsz)
-        if c.bip_count >= 1:
+        if counts >= 1:
             pygame.draw.rect(
                 self._screen,
                 pygame.color.THECOLORS["black"],

@@ -28,7 +28,8 @@ from typing import Dict, List, Sequence, Tuple
 from numpy import clip
 
 from gym_sapientino.core.configurations import SapientinoConfiguration
-from gym_sapientino.core.objects import Cell, Robot, SapientinoGrid
+from gym_sapientino.core.grid import Cell, SapientinoGrid
+from gym_sapientino.core.objects import Robot
 from gym_sapientino.core.types import (
     COMMAND_TYPES,
     Colors,
@@ -46,7 +47,8 @@ class SapientinoState(ABC):
         self.config = config
 
         self.score = 0
-        self._grid = SapientinoGrid(config)
+        self._grid = self.config.grid
+        self._grid.reset()
         self._robots: List[Robot] = [
             Robot(config, 1 + 2 * i, 2, Direction.UP, i)
             for i in range(config.nb_robots)
@@ -96,7 +98,7 @@ class SapientinoState(ABC):
     @property
     def current_cells(self) -> Sequence[Cell]:
         """Get the current cell."""
-        return [self.grid.cells[r.position] for r in self._robots]
+        return [self.grid.cells[r.y][r.x] for r in self._robots]
 
     @property
     def last_commands(self) -> Sequence[COMMAND_TYPES]:
@@ -130,14 +132,13 @@ class SapientinoState(ABC):
     def _do_beep(self, robot: Robot, command: COMMAND_TYPES) -> float:
         reward = 0.0
         if command == command.BEEP:
-            position = robot.x, robot.y
-            cell = self.grid.cells[position]
-            cell.beep()
+            cell = self.grid.cells[robot.y][robot.x]
+            self.grid.do_beep(cell)
             if cell.color != Colors.BLANK:
                 if cell.color not in self.grid.color_count:
                     self.grid.color_count[cell.color] = 0
                 self.grid.color_count[cell.color] += 1
-            if cell.bip_count >= 2:
+            if self.grid.get_bip_counts(cell) >= 2:
                 reward += self.config.reward_duplicate_beep
 
         return reward

@@ -22,12 +22,15 @@
 
 """Classes for the environment configurations."""
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Tuple
 
 import gym
 from gym.spaces import Discrete, MultiDiscrete
 from gym.spaces import Tuple as GymTuple
 
+from gym_sapientino.core.constants import ASSETS_DIR, DEFAULT_MAP_FILENAME
+from gym_sapientino.core.grid import SapientinoGrid, from_map
 from gym_sapientino.core.types import (
     ACTION_TYPE,
     COMMAND_TYPES,
@@ -68,11 +71,36 @@ class SapientinoConfiguration:
     agent_configs: Tuple[SapientinoAgentConfiguration, ...] = (
         SapientinoAgentConfiguration(),
     )
-    rows: int = 5
-    columns: int = 7
+    path_to_map: Path = ASSETS_DIR / DEFAULT_MAP_FILENAME
     reward_outside_grid: float = -1.0
     reward_duplicate_beep: float = -1.0
     reward_per_step: float = -0.01
+
+    def __post_init__(self):
+        """
+        Post init.
+
+        Load the map.
+        """
+        # accept string for path_to_map
+        object.__setattr__(self, "path_to_map", Path(self.path_to_map))
+        grid = from_map(self.path_to_map)
+        object.__setattr__(self, "_grid", grid)
+
+    @property
+    def grid(self) -> SapientinoGrid:
+        """Return the grid."""
+        return self._grid  # type: ignore
+
+    @property
+    def rows(self) -> int:
+        """Get the number of rows."""
+        return self.grid.rows
+
+    @property
+    def columns(self) -> int:
+        """Get the number of columns."""
+        return self.grid.columns
 
     @property
     def nb_robots(self) -> int:

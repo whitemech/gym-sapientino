@@ -22,18 +22,14 @@
 
 """Objects of the game."""
 
-import itertools
-from typing import Dict, Tuple
+from typing import Tuple
 
 from gym_sapientino.core.configurations import SapientinoConfiguration
-from gym_sapientino.core.constants import TOKENS
 from gym_sapientino.core.types import (
     COMMAND_TYPES,
-    Colors,
     DifferentialCommand,
     Direction,
     NormalCommand,
-    color2int,
 )
 
 
@@ -76,9 +72,9 @@ class Robot:
     def _step_normal(self, command: NormalCommand) -> "Robot":
         x, y = self.x, self.y
         if command == command.DOWN:
-            y -= 1
-        elif command == command.UP:
             y += 1
+        elif command == command.UP:
+            y -= 1
         elif command == command.RIGHT:
             x += 1
         elif command == command.LEFT:
@@ -87,7 +83,7 @@ class Robot:
 
     def _step_differential(self, command: DifferentialCommand) -> "Robot":
         dx = 1 if self.direction.th == 0 else -1 if self.direction.th == 180 else 0
-        dy = 1 if self.direction.th == 90 else -1 if self.direction.th == 270 else 0
+        dy = -1 if self.direction.th == 90 else +1 if self.direction.th == 270 else 0
         x, y = self.x, self.y
         direction = self.direction
         if command == command.LEFT:
@@ -106,63 +102,3 @@ class Robot:
     def encoded_theta(self) -> int:
         """Encode the theta."""
         return self.direction.th // 90
-
-
-class Cell:
-    """A class to represent a cell on the grid."""
-
-    def __init__(self, config: SapientinoConfiguration, x: int, y: int, color: Colors):
-        """Initialize the cell."""
-        self.config = config
-        self.x = x
-        self.y = y
-        self.color = color
-        self.bip_count = 0
-
-    @property
-    def encoded_color(self) -> int:
-        """Encode the color."""
-        return color2int[self.color]
-
-    def beep(self) -> None:
-        """Do a beep."""
-        self.bip_count += 1
-
-
-class BlankCell(Cell):
-    """A blank cell."""
-
-    def __init__(self, config: SapientinoConfiguration, x: int, y: int):
-        """Initialize the blank cell."""
-        super().__init__(config, x, y, Colors.BLANK)
-
-
-class SapientinoGrid:
-    """The grid of the Sapientino environment."""
-
-    def __init__(self, config: SapientinoConfiguration):
-        """Initialize the grid."""
-        self.config = config
-
-        self.rows = config.rows
-        self.columns = config.columns
-
-        self.cells: Dict[Tuple[int, int], Cell] = {}
-        self.color_count: Dict[Colors, int] = {}
-
-        self._populate_token_grid()
-
-    def _populate_token_grid(self):
-        # add color cells
-        for t in TOKENS:
-            x, y = t[2], t[3]
-            color = t[1]
-            color_cell = Cell(self.config, x, y, Colors(color))
-            self.cells[(x, y)] = color_cell
-
-        # add blank cells
-        for x, y in itertools.product(
-            range(self.config.columns), range(self.config.rows)
-        ):
-            if (x, y) not in self.cells:
-                self.cells[(x, y)] = BlankCell(self.config, x, y)
