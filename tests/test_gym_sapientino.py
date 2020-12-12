@@ -21,7 +21,12 @@
 #
 
 """Tests for the Sapientino Gym environment."""
+import pytest
+
 from gym_sapientino import SapientinoDictSpace, __version__
+from gym_sapientino.core.configurations import SapientinoAgentConfiguration
+
+NB_ROLLOUT_STEPS = 20
 
 
 def test_version():
@@ -29,6 +34,17 @@ def test_version():
     assert __version__ == "0.2.0"
 
 
-def test_instantiation():
+@pytest.mark.parametrize(
+    "differential,continuous", [(False, False), (True, False), (False, True)]
+)
+def test_rollout(differential, continuous):
     """Test instantiation of the environment."""
-    SapientinoDictSpace()
+    agent_config = SapientinoAgentConfiguration(
+        differential=differential, continuous=continuous
+    )
+    env = SapientinoDictSpace(agent_configs=(agent_config,))
+
+    env.reset()
+    for _ in range(NB_ROLLOUT_STEPS):
+        env.step(env.action_space.sample())
+        env.render(mode="rgb_array")

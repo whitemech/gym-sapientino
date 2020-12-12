@@ -40,6 +40,9 @@ def parse_arguments():
     parser.add_argument(
         "--differential", action="store_true", help="Differential action space."
     )
+    parser.add_argument(
+        "--continuous", action="store_true", help="Continuous action space."
+    )
     parser.add_argument("--record", action="store_true", help="Record the play.")
     parser.add_argument("--frames", action="store_true", help="Record single frames.")
 
@@ -48,7 +51,7 @@ def parse_arguments():
 
 if __name__ == "__main__":
     args = parse_arguments()
-    c = SapientinoAgentConfiguration(args.differential)
+    c = SapientinoAgentConfiguration(args.differential, args.continuous)
     agent_configs = (c,)
     env = SapientinoDictSpace(SapientinoConfiguration(agent_configs))
     if args.frames:

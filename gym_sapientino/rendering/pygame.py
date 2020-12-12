@@ -108,14 +108,14 @@ class PygameRenderer(Renderer):
 
     def _draw_score_label(self):
         score_label = self.myfont.render(
-            str(self.state.score), 100, pygame.color.THECOLORS["black"]
+            str(self.state.score), True, pygame.color.THECOLORS["black"]
         )
         self._screen.blit(score_label, (20, 10))
 
     def _draw_last_command(self):
         cmds = self.state.last_commands
         s = "".join(f"{str(c)}" for c in cmds)
-        count_label = self.myfont.render(s, 100, pygame.color.THECOLORS["brown"])
+        count_label = self.myfont.render(s, True, pygame.color.THECOLORS["brown"])
         self._screen.blit(count_label, (60, 10))
 
     def _draw_game_objects(self):
@@ -143,21 +143,13 @@ class PygameRenderer(Renderer):
             2 * self.radius,
             0,
         )
-        ox = 0
-        oy = 0
-        if r.direction.th == 0:  # right
-            ox = self.radius
-        elif r.direction.th == 90:  # up
-            oy = -self.radius
-        elif r.direction.th == 180:  # left
-            ox = -self.radius
-        elif r.direction.th == 270:  # down
-            oy = self.radius
+        sin, cos = r.direction.sincos()
+        ox, oy = self.radius * cos, self.radius * sin
 
         pygame.draw.circle(
             self._screen,
             pygame.color.THECOLORS["black"],
-            [dx + self.size_square // 2 + ox, dy + self.size_square // 2 + oy],
+            [dx + self.size_square // 2 + ox, dy + self.size_square // 2 - oy],
             5,
             0,
         )

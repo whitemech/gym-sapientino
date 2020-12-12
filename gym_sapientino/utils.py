@@ -24,6 +24,8 @@
 from functools import reduce
 from typing import List
 
+import numpy as np
+
 
 def encode(obs: List[int], spaces: List[int]) -> int:
     """
@@ -65,3 +67,8 @@ def decode(obs: int, spaces: List[int]) -> List[int]:
 
     result.append(obs)
     return result[::-1]
+
+
+def set_to_zero_if_small(x) -> float:
+    """Set to zero if it is a small number."""
+    return 0.0 if np.isclose(x, 0.0) else x
