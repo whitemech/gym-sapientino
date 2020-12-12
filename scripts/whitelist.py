@@ -8,3 +8,4 @@ _.from_id  # unused method (gym_sapientino/core/types.py:143)
 cls  # unused variable (gym_sapientino/core/types.py:144)
 encode  # unused function (gym_sapientino/utils.py:28)
 decode  # unused function (gym_sapientino/utils.py:47)
+color2id

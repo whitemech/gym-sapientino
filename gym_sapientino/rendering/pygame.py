@@ -183,9 +183,9 @@ class PygameRenderer(Renderer):
             )
 
         for cell in g.iter_cells():
-            self._draw_cell(cell)
+            self._draw_cell(cell, g.get_bip_counts(cell))
 
-    def _draw_cell(self, c: Cell) -> None:
+    def _draw_cell(self, c: Cell, counts: int) -> None:
         """Draw a cell."""
         if c.color == Colors.BLANK:
             return
@@ -198,7 +198,7 @@ class PygameRenderer(Renderer):
             self.size_square - 10,
         )
         pygame.draw.rect(self._screen, pygame.color.THECOLORS[str(c.color)], sqsz)
-        if c.bip_count >= 1:
+        if counts >= 1:
             pygame.draw.rect(
                 self._screen,
                 pygame.color.THECOLORS["black"],

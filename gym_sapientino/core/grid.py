@@ -35,16 +35,11 @@ class Cell:
         self.x = x
         self.y = y
         self.color = color
-        self.bip_count = 0
 
     @property
     def encoded_color(self) -> int:
         """Encode the color."""
         return color2int[self.color]
-
-    def beep(self) -> None:
-        """Do a beep."""
-        self.bip_count += 1
 
 
 class SapientinoGrid:
@@ -54,6 +49,21 @@ class SapientinoGrid:
         """Initialize the grid."""
         self.cells: List[List[Cell]] = cells
         self.color_count: Dict[Colors, int] = {}
+        self.counts: List[List[int]] = []
+        self.reset()
+
+    def reset(self):
+        """Reset the state of the grid."""
+        self.color_count: Dict[Colors, int] = {}
+        self.counts = [[0] * self.columns for _ in range(self.columns)]
+
+    def get_bip_counts(self, c: Cell):
+        """Get counts."""
+        return self.counts[c.y][c.x]
+
+    def do_beep(self, c: Cell):
+        """Do a beep for a cell."""
+        self.counts[c.y][c.x] += 1
 
     @property
     def rows(self):
@@ -92,7 +102,7 @@ def from_map(path_to_map: Path) -> SapientinoGrid:
     for i in range(nb_rows):
         row = []
         for j in range(nb_columns):
-            assert len(cells_str[i]) > 0
+            assert len(cells_str[i]) == nb_columns, "Got rows of different size"
             cell = cells_str[i][j]
             color = _from_character_to_color(cell)
             row.append(Cell(j, i, color))

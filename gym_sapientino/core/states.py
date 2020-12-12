@@ -48,6 +48,7 @@ class SapientinoState(ABC):
 
         self.score = 0
         self._grid = self.config.grid
+        self._grid.reset()
         self._robots: List[Robot] = [
             Robot(config, 1 + 2 * i, 2, Direction.UP, i)
             for i in range(config.nb_robots)
@@ -132,12 +133,12 @@ class SapientinoState(ABC):
         reward = 0.0
         if command == command.BEEP:
             cell = self.grid.cells[robot.y][robot.x]
-            cell.beep()
+            self.grid.do_beep(cell)
             if cell.color != Colors.BLANK:
                 if cell.color not in self.grid.color_count:
                     self.grid.color_count[cell.color] = 0
                 self.grid.color_count[cell.color] += 1
-            if cell.bip_count >= 2:
+            if self.grid.get_bip_counts(cell) >= 2:
                 reward += self.config.reward_duplicate_beep
 
         return reward

@@ -158,5 +158,6 @@ id2color: Dict[str, Colors] = {
     "G": Colors.GRAY,
     "P": Colors.PURPLE,
 }
+color2id = dict(map(reversed, id2color.items()))  # type: ignore
 
 ACTION_TYPE = Sequence[COMMAND_TYPES]
