@@ -92,9 +92,37 @@ def _from_character_to_color(char: str) -> Colors:
 
 
 def from_map(path_to_map: Path) -> SapientinoGrid:
-    """Get a grid from a map."""
-    content = path_to_map.read_text()
-    cells_str = [list(line[:-1]) for line in content.splitlines(keepends=False)]
+    """
+    Get a grid from a map.
+
+    The function expects the path to point to a text file of ASCII characters.
+    Each rows of characters correspond to a row of cells in the grid of the environment.
+    The allowed characters are:
+    - ' ', the empty cell;
+    - 'r', a cell with color red;
+    - 'g', a cell with color green;
+    - 'b', a cell with color blue;
+    - 'y', a cell with color yellow;
+    - 'p', a cell with color pink;
+    - 'o', a cell with color orange;
+    - 'B', a cell with color brown;
+    - 'G', a cell with color gray;
+    - 'P', a cell with color purple;
+
+    The character '|' will be ignored. It is useful as a separator of rows
+    during the editing (some text editors might remove trailing spaces of a row).
+
+    An example of grid map is:
+
+      |P bB g |
+      | bp G r|
+      |G   pg |
+      | rpG PB|
+      |rP Bg b|
+
+    """
+    content = path_to_map.read_text(encoding="ascii").replace("|", "")
+    cells_str = content.splitlines(keepends=False)
     assert len(cells_str) > 0, "No row found."
     assert len(cells_str[0]) > 0, "No column found."
     nb_rows, nb_columns = len(cells_str), len(cells_str[0])

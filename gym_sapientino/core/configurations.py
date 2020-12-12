@@ -82,6 +82,8 @@ class SapientinoConfiguration:
 
         Load the map.
         """
+        # accept string for path_to_map
+        object.__setattr__(self, "path_to_map", Path(self.path_to_map))
         grid = from_map(self.path_to_map)
         object.__setattr__(self, "_grid", grid)
 
