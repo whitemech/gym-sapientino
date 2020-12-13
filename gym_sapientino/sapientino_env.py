@@ -39,19 +39,21 @@ class Sapientino(gym.Env, ABC):
     metadata = {"render.modes": ["human", "rgb_array"]}
 
     def __init__(
-        self, configuration: Optional[SapientinoConfiguration] = None, **kwargs
+        self, configuration: Optional[SapientinoConfiguration] = None, *args, **kwargs
     ):
         """
         Initialize the environment.
 
         :param configuration: the configuration object.
+        :param args: positional arguments to the configuration object.
+          They are ignored if the configuration is provided.
         :param kwargs: keyword arguments to the configuration object.
           They are ignored if the configuration is provided.
         """
         self.configuration = (
             configuration
             if configuration is not None
-            else SapientinoConfiguration(**kwargs)
+            else SapientinoConfiguration(*args, **kwargs)
         )
         self.state = make_state(self.configuration)
         self.viewer: Optional[Renderer] = None

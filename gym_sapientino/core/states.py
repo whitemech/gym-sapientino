@@ -21,7 +21,7 @@
 #
 
 """State representiations for different Sapientino game."""
-
+import math
 from abc import ABC
 from typing import Dict, List, Sequence, Tuple
 
@@ -30,13 +30,7 @@ from numpy import clip
 from gym_sapientino.core.configurations import SapientinoConfiguration
 from gym_sapientino.core.grid import Cell, SapientinoGrid
 from gym_sapientino.core.objects import Robot
-from gym_sapientino.core.types import (
-    COMMAND_TYPES,
-    Colors,
-    DifferentialCommand,
-    Direction,
-    NormalCommand,
-)
+from gym_sapientino.core.types import COMMAND_TYPES, Colors
 
 
 class SapientinoState(ABC):
@@ -50,12 +44,10 @@ class SapientinoState(ABC):
         self._grid = self.config.grid
         self._grid.reset()
         self._robots: List[Robot] = [
-            Robot(config, 1 + 2 * i, 2, Direction.UP, i)
-            for i in range(config.nb_robots)
+            Robot(config, 1 + 2 * i, 2, 0.0, 90.0, i) for i in range(config.nb_robots)
         ]
         self._last_commands: List[COMMAND_TYPES] = [
-            NormalCommand.NOP if ac.differential else DifferentialCommand.NOP
-            for ac in self.config.agent_configs
+            ac.action_type.NOP for ac in self.config.agent_configs
         ]
 
     @property
@@ -98,7 +90,10 @@ class SapientinoState(ABC):
     @property
     def current_cells(self) -> Sequence[Cell]:
         """Get the current cell."""
-        return [self.grid.cells[r.y][r.x] for r in self._robots]
+        result = []
+        for r in self._robots:
+            result.append(self.grid.cells[r.discrete_y][r.discrete_x])
+        return result
 
     @property
     def last_commands(self) -> Sequence[COMMAND_TYPES]:
@@ -109,9 +104,13 @@ class SapientinoState(ABC):
         """Encode into a dictionary."""
         return tuple(
             {
+                "discrete_x": math.floor(r.x),
+                "discrete_y": math.floor(r.y),
                 "x": r.x,
                 "y": r.y,
+                "velocity": r.velocity,
                 "theta": r.encoded_theta,
+                "angle": r.direction.theta,
                 "beep": int(self.last_commands[i] == self.last_commands[i].BEEP),
                 "color": self.current_cells[i].encoded_color,
             }
@@ -121,18 +120,20 @@ class SapientinoState(ABC):
     def _force_border_constraints(self, r: Robot) -> Tuple[float, Robot]:
         reward = 0.0
         x, y = r.x, r.y
-        if not (0 <= r.x < self.config.columns):
+        if not (0 <= r.x < self.config.columns - 1):
             reward += self.config.reward_outside_grid
             x = int(clip(r.x, 0, self.config.columns - 1))
-        if not (0 <= r.y < self.config.rows):
+            r.velocity = 0.0
+        if not (0 <= r.y < self.config.rows - 1):
             reward += self.config.reward_outside_grid
             y = int(clip(r.y, 0, self.config.rows - 1))
+            r.velocity = 0.0
         return reward, r.move(x, y)
 
     def _do_beep(self, robot: Robot, command: COMMAND_TYPES) -> float:
         reward = 0.0
         if command == command.BEEP:
-            cell = self.grid.cells[robot.y][robot.x]
+            cell = self.grid.cells[robot.discrete_y][robot.discrete_x]
             self.grid.do_beep(cell)
             if cell.color != Colors.BLANK:
                 if cell.color not in self.grid.color_count:

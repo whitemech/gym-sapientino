@@ -26,6 +26,7 @@ from pathlib import Path
 from typing import Tuple
 
 import gym
+import numpy as np
 from gym.spaces import Discrete, MultiDiscrete
 from gym.spaces import Tuple as GymTuple
 
@@ -33,9 +34,10 @@ from gym_sapientino.core.constants import ASSETS_DIR, DEFAULT_MAP_FILENAME
 from gym_sapientino.core.grid import SapientinoGrid, from_map
 from gym_sapientino.core.types import (
     ACTION_TYPE,
+    COMMAND_ENUM_TYPES,
     COMMAND_TYPES,
+    ContinuousCommand,
     DifferentialCommand,
-    Direction,
     NormalCommand,
     color2int,
 )
@@ -43,24 +45,40 @@ from gym_sapientino.core.types import (
 
 @dataclass(frozen=True)
 class SapientinoAgentConfiguration:
-    """Configuration for a single agent."""
+    """
+    Configuration for a single agent.
+
+    By default, the agent moves on the grid cell by cell,
+    with the action space as LEFT-UP-RIGHT-DOWN.
+
+    If differential is true, the agent can move forward and
+    backward, and can turn left and right (but on the same cell).
+    (continuous must be false).
+
+    If continuous is True, the agent can speed up, slow down,
+    turn left and turn right. "differential" is ignored.
+    """
 
     differential: bool = False
+    continuous: bool = False
+
+    @property
+    def action_type(self) -> COMMAND_ENUM_TYPES:
+        """Get the action enumeration."""
+        if self.continuous:
+            return ContinuousCommand
+        if self.differential:
+            return DifferentialCommand
+        return NormalCommand
 
     @property
     def action_space(self) -> gym.spaces.Discrete:
         """Get the action space.."""
-        if self.differential:
-            return Discrete(len(DifferentialCommand))
-        else:
-            return Discrete(len(NormalCommand))
+        return Discrete(len(self.action_type))
 
     def get_action(self, action: int) -> COMMAND_TYPES:
         """Get the action."""
-        if self.differential:
-            return DifferentialCommand(action)
-        else:
-            return NormalCommand(action)
+        return self.action_type(action)  # type: ignore
 
 
 @dataclass(frozen=True)
@@ -75,6 +93,9 @@ class SapientinoConfiguration:
     reward_outside_grid: float = -1.0
     reward_duplicate_beep: float = -1.0
     reward_per_step: float = -0.01
+    angular_speed: float = 20.0
+    acceleration: float = 0.02
+    max_velocity: float = 0.20
 
     def __post_init__(self):
         """
@@ -120,9 +141,7 @@ class SapientinoConfiguration:
         def get_observation_space(agent_config):
             postfix = 2, self.nb_colors
             if agent_config.differential:
-                return MultiDiscrete(
-                    (self.columns, self.rows, Direction.nb_directions()) + postfix
-                )
+                return MultiDiscrete((self.columns, self.rows, self.nb_theta) + postfix)
             return MultiDiscrete((self.columns, self.rows) + postfix)
 
         return GymTuple(tuple(map(get_observation_space, self.agent_configs)))
@@ -136,7 +155,7 @@ class SapientinoConfiguration:
     @property
     def nb_theta(self):
         """Get the number of orientations."""
-        return Direction.nb_directions()
+        return 4
 
     @property
     def nb_colors(self):
@@ -146,3 +165,7 @@ class SapientinoConfiguration:
     def get_action(self, action) -> ACTION_TYPE:
         """Get the action."""
         return [ac.get_action(a) for a, ac in zip(action, self.agent_configs)]
+
+    def clip_velocity(self, velocity: float) -> float:
+        """Clip velocity."""
+        return float(np.clip(velocity, -self.max_velocity, self.max_velocity))

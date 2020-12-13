@@ -21,9 +21,13 @@
 #
 
 """Define basic types."""
-
+from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, Sequence, Union
+from typing import Dict, Sequence, Tuple, Type, Union
+
+import numpy as np
+
+from gym_sapientino.utils import set_to_zero_if_small
 
 
 class NormalCommand(Enum):
@@ -84,38 +88,80 @@ class DifferentialCommand(Enum):
             raise ValueError("Shouldn't be here...")
 
 
-COMMAND_TYPES = Union[NormalCommand, DifferentialCommand]
+class ContinuousCommand(Enum):
+    """Enumeration for continuous commands."""
+
+    LEFT = 0
+    FORWARD = 1
+    RIGHT = 2
+    BACKWARD = 3
+    BEEP = 4
+    NOP = 5
+
+    def __str__(self) -> str:
+        """Get the string representation."""
+        cmd = ContinuousCommand(self.value)
+        if cmd == ContinuousCommand.LEFT:
+            return "<"
+        elif cmd == ContinuousCommand.RIGHT:
+            return ">"
+        elif cmd == ContinuousCommand.FORWARD:
+            return "^"
+        elif cmd == ContinuousCommand.BACKWARD:
+            return "v"
+        elif cmd == ContinuousCommand.BEEP:
+            return "o"
+        elif cmd == ContinuousCommand.NOP:
+            return "_"
+        else:
+            raise ValueError("Shouldn't be here...")
 
 
-class Direction(Enum):
-    """A class to represent the four directions (up, down, left, right)."""
+COMMAND_TYPES = Union[NormalCommand, DifferentialCommand, ContinuousCommand]
+COMMAND_ENUM_TYPES = Union[
+    Type[NormalCommand], Type[DifferentialCommand], Type[ContinuousCommand]
+]
 
-    RIGHT = 0
-    UP = 90
-    LEFT = 180
-    DOWN = 270
 
-    def rotate_left(self) -> "Direction":
+@dataclass
+class Direction:
+    """A class to represent the direction."""
+
+    theta: float
+
+    def rotate(self, delta_theta: float):
+        """Rotate of a certain amount."""
+        th = self.theta + delta_theta
+        if th < 0:
+            th = 360.0 + th
+        elif th >= 360.0:
+            th = th % 360.0
+        return Direction(th)
+
+    def rotate_left(self, delta_theta: float) -> "Direction":
+        """Rotate left of a certain amount."""
+        assert delta_theta >= 0.0, "Only positive values are allowed."
+        return self.rotate(delta_theta)
+
+    def rotate_90_left(self) -> "Direction":
         """Rotate the direction to the left."""
-        th = (self.th + 90) % 360
-        return Direction(th)
+        return self.rotate_left(90.0)
 
-    def rotate_right(self) -> "Direction":
+    def rotate_right(self, delta_theta: float) -> "Direction":
+        """Rotate right of a certain amount."""
+        assert delta_theta >= 0.0, "Only positive values are allowed."
+        return self.rotate(-delta_theta)
+
+    def rotate_90_right(self) -> "Direction":
         """Rotate the direction to the right."""
-        th = (self.th - 90) % 360
-        if th == -90:
-            th = 270
-        return Direction(th)
+        return self.rotate_right(90.0)
 
-    @staticmethod
-    def nb_directions() -> int:
-        """Get the number of allowed directions."""
-        return len(Direction)
-
-    @property
-    def th(self):
-        """Get the theta value of the direction."""
-        return self.value
+    def sincos(self) -> Tuple[float, float]:
+        """Return the pair (sin(theta), cos(theta)."""
+        rad_theta = np.deg2rad(self.theta)
+        sin_theta = set_to_zero_if_small(np.sin(rad_theta))
+        cos_theta = set_to_zero_if_small(np.cos(rad_theta))
+        return sin_theta, cos_theta
 
 
 class Colors(Enum):
