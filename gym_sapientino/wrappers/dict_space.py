@@ -21,9 +21,10 @@
 #
 
 """Sapientino environments using a "dict" state space."""
+import sys
 
 import gym
-from gym.spaces import Dict, Discrete
+from gym.spaces import Box, Dict, Discrete
 
 from gym_sapientino.core.states import SapientinoState
 from gym_sapientino.sapientino_env import Sapientino
@@ -45,9 +46,15 @@ class SapientinoDictSpace(Sapientino):
         """Initialize the dictionary space."""
         super().__init__(*args, **kwargs)
 
-        self._x_space = Discrete(self.configuration.columns)
-        self._y_space = Discrete(self.configuration.rows)
+        self._discrete_x_space = Discrete(self.configuration.columns)
+        self._discrete_y_space = Discrete(self.configuration.rows)
+        self._x_space = Box(0.0, self.configuration.columns, shape=[1])
+        self._y_space = Box(0.0, self.configuration.rows, shape=[1])
+        self._velocity_space = Box(
+            -self.configuration.max_velocity, self.configuration.max_velocity, shape=[1]
+        )
         self._theta_space = Discrete(self.configuration.nb_theta)
+        self._angle_space = Box(0.0, 360.0 - sys.float_info.epsilon, shape=[1])
         self._beep_space = Discrete(2)
         self._color_space = Discrete(self.configuration.nb_colors)
 
@@ -58,8 +65,13 @@ class SapientinoDictSpace(Sapientino):
         def get_agent_dict_space(i: int):
             agent_config = self.configuration.agent_configs[i]
             d = {
+                "discrete_x": self._discrete_x_space,
+                "discrete_y": self._discrete_y_space,
                 "x": self._x_space,
                 "y": self._y_space,
+                "velocity": self._velocity_space,
+                "theta": self._theta_space,
+                "angle": self._angle_space,
                 "beep": self._beep_space,
                 "color": self._color_space,
             }

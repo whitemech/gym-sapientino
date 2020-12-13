@@ -21,6 +21,8 @@
 #
 
 """Tests for the Sapientino Gym environment."""
+import logging
+
 import pytest
 
 from gym_sapientino import SapientinoDictSpace, __version__
@@ -34,10 +36,19 @@ def test_version():
     assert __version__ == "0.2.0"
 
 
+@pytest.fixture(autouse=True, scope="session")
+def with_rendering(request):
+    """Return true if not on CI - Pygame rendering not supported."""
+    result = not request.config.getoption("--ci")
+    if not result:
+        logging.info("Skipping rendering, because executing the test on CI.")
+    return result
+
+
 @pytest.mark.parametrize(
     "differential,continuous", [(False, False), (True, False), (False, True)]
 )
-def test_rollout(differential, continuous):
+def test_rollout(differential, continuous, with_rendering):
     """Test instantiation of the environment."""
     agent_config = SapientinoAgentConfiguration(
         differential=differential, continuous=continuous
@@ -47,4 +58,7 @@ def test_rollout(differential, continuous):
     env.reset()
     for _ in range(NB_ROLLOUT_STEPS):
         env.step(env.action_space.sample())
-        env.render(mode="rgb_array")
+        if with_rendering:
+            env.render(mode="rgb_array")
+
+    env.close()
