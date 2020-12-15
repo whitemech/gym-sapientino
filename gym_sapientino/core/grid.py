@@ -55,7 +55,7 @@ class SapientinoGrid:
     def reset(self):
         """Reset the state of the grid."""
         self.color_count: Dict[Colors, int] = {}
-        self.counts = [[0] * self.columns for _ in range(self.columns)]
+        self.counts = [[0] * self.columns for _ in range(self.rows)]
 
     def get_bip_counts(self, c: Cell):
         """Get counts."""

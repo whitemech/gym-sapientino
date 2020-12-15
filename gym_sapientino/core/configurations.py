@@ -23,7 +23,7 @@
 """Classes for the environment configurations."""
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Tuple
+from typing import Optional, Tuple
 
 import gym
 import numpy as np
@@ -61,6 +61,7 @@ class SapientinoAgentConfiguration:
 
     differential: bool = False
     continuous: bool = False
+    initial_position: Optional[Tuple[float, float]] = None
 
     @property
     def action_type(self) -> COMMAND_ENUM_TYPES:
