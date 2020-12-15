@@ -152,7 +152,7 @@ class Robot:
             delta_theta = sign * self.config.angular_speed
             direction = self.direction.rotate(delta_theta)
         elif command in {command.FORWARD, command.BACKWARD}:
-            sign = -1.0 if command == command.BACKWARD else 1.0
+            sign = -0.5 if command == command.BACKWARD else 1.0
             velocity += sign * self.config.acceleration
             velocity = set_to_zero_if_small(velocity)
 

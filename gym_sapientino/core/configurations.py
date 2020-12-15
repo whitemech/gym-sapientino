@@ -96,6 +96,7 @@ class SapientinoConfiguration:
     angular_speed: float = 20.0
     acceleration: float = 0.02
     max_velocity: float = 0.20
+    min_velocity: float = -0.20
 
     def __post_init__(self):
         """
@@ -168,4 +169,4 @@ class SapientinoConfiguration:
 
     def clip_velocity(self, velocity: float) -> float:
         """Clip velocity."""
-        return float(np.clip(velocity, -self.max_velocity, self.max_velocity))
+        return float(np.clip(velocity, self.min_velocity, self.max_velocity))
