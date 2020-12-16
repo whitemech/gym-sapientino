@@ -126,6 +126,7 @@ class SapientinoState(ABC):
                 "velocity": r.velocity,
                 "theta": r.encoded_theta,
                 "angle": r.direction.theta,
+                "ang_velocity": r.ang_velocity,
                 "beep": int(self.last_commands[i] == self.last_commands[i].BEEP),
                 "color": self.current_cells[i].encoded_color,
             }

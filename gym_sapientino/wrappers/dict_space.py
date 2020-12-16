@@ -51,10 +51,15 @@ class SapientinoDictSpace(Sapientino):
         self._x_space = Box(0.0, self.configuration.columns, shape=[1])
         self._y_space = Box(0.0, self.configuration.rows, shape=[1])
         self._velocity_space = Box(
-            -self.configuration.max_velocity, self.configuration.max_velocity, shape=[1]
+            self.configuration.min_velocity, self.configuration.max_velocity, shape=[1]
         )
         self._theta_space = Discrete(self.configuration.nb_theta)
         self._angle_space = Box(0.0, 360.0 - sys.float_info.epsilon, shape=[1])
+        self._ang_velocity_space = Box(
+            -self.configuration.max_angular_vel,
+            self.configuration.max_angular_vel,
+            shape=[1],
+        )
         self._beep_space = Discrete(2)
         self._color_space = Discrete(self.configuration.nb_colors)
 
@@ -71,6 +76,7 @@ class SapientinoDictSpace(Sapientino):
                 "y": self._y_space,
                 "velocity": self._velocity_space,
                 "theta": self._theta_space,
+                "ang_velocity": self._ang_velocity_space,
                 "angle": self._angle_space,
                 "beep": self._beep_space,
                 "color": self._color_space,
