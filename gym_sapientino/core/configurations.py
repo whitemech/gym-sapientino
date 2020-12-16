@@ -94,10 +94,11 @@ class SapientinoConfiguration:
     reward_outside_grid: float = -1.0
     reward_duplicate_beep: float = -1.0
     reward_per_step: float = -0.01
-    angular_speed: float = 20.0
     acceleration: float = 0.02
+    angular_acceleration: float = 20.0
     max_velocity: float = 0.20
     min_velocity: float = -0.20
+    max_angular_vel: float = 40
 
     def __post_init__(self):
         """
@@ -171,3 +172,7 @@ class SapientinoConfiguration:
     def clip_velocity(self, velocity: float) -> float:
         """Clip velocity."""
         return float(np.clip(velocity, self.min_velocity, self.max_velocity))
+
+    def clip_angular_velocity(self, angular_vel: float) -> float:
+        """Clip velocity."""
+        return float(np.clip(angular_vel, -self.max_angular_vel, self.max_angular_vel))

@@ -47,6 +47,7 @@ class Robot:
         y: float,
         velocity: float,
         theta: float,
+        ang_velocity: float,
         id_: int,
     ):
         """Initialize the robot."""
@@ -56,6 +57,7 @@ class Robot:
         self.y = y
         self.velocity = velocity
         self.direction = Direction(theta)
+        self.ang_velocity = ang_velocity
 
     @property
     def id(self) -> int:
@@ -83,7 +85,15 @@ class Robot:
 
     def move(self, x: float, y: float) -> "Robot":
         """Move to a location."""
-        return Robot(self.config, x, y, self.velocity, self.direction.theta, self.id)
+        return Robot(
+            self.config,
+            x,
+            y,
+            self.velocity,
+            self.direction.theta,
+            self.ang_velocity,
+            self.id,
+        )
 
     def apply_velocity(self) -> "Robot":
         """Apply the velocity to change position."""
@@ -91,8 +101,15 @@ class Robot:
         sin, cos = self.direction.sincos()
         new_x += self.velocity * cos
         new_y += -self.velocity * sin
+        new_dir = self.direction.rotate(self.ang_velocity).theta
         return Robot(
-            self.config, new_x, new_y, self.velocity, self.direction.theta, self.id
+            self.config,
+            new_x,
+            new_y,
+            self.velocity,
+            new_dir,
+            self.ang_velocity,
+            self.id,
         )
 
     def step(self, command: COMMAND_TYPES) -> "Robot":
@@ -116,7 +133,15 @@ class Robot:
             x += 1
         elif command == command.LEFT:
             x -= 1
-        return Robot(self.config, x, y, self.velocity, self.direction.theta, self.id)
+        return Robot(
+            self.config,
+            x,
+            y,
+            self.velocity,
+            self.direction.theta,
+            self.ang_velocity,
+            self.id,
+        )
 
     def _step_differential(self, command: DifferentialCommand) -> "Robot":
         dx = (
@@ -141,23 +166,34 @@ class Robot:
         elif command == command.BACKWARD:
             x -= dx
             y -= dy
-        return Robot(self.config, x, y, self.velocity, direction.theta, self.id)
+        return Robot(
+            self.config,
+            x,
+            y,
+            self.velocity,
+            direction.theta,
+            self.ang_velocity,
+            self.id,
+        )
 
     def _step_continuous(self, command: ContinuousCommand) -> "Robot":
         velocity = self.velocity
         direction = self.direction
+        ang_velocity = self.ang_velocity
         x, y = self.x, self.y
         if command in {command.LEFT, command.RIGHT}:
             sign = 1.0 if command == command.LEFT else -1.0
-            delta_theta = sign * self.config.angular_speed
-            direction = self.direction.rotate(delta_theta)
+            ang_velocity += sign * self.config.angular_acceleration
+            ang_velocity = set_to_zero_if_small(ang_velocity)
         elif command in {command.FORWARD, command.BACKWARD}:
             sign = -0.5 if command == command.BACKWARD else 1.0
             velocity += sign * self.config.acceleration
             velocity = set_to_zero_if_small(velocity)
 
         velocity = self.config.clip_velocity(velocity)
-        r = Robot(self.config, x, y, velocity, direction.theta, self.id)
+        ang_velocity = self.config.clip_angular_velocity(ang_velocity)
+
+        r = Robot(self.config, x, y, velocity, direction.theta, ang_velocity, self.id)
         return r.apply_velocity()
 
     @property
