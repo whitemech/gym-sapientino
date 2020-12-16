@@ -61,7 +61,7 @@ class SapientinoState(ABC):
                 x, y = 1.0 + 2 * i, 2.0
             else:
                 x, y = agent_config.initial_position
-            return Robot(config, x, y, 0.0, 90.0, i)
+            return Robot(config, x, y, 0.0, 90.0, 0.0, i)
 
         return [_make_robot(i, c) for i, c in enumerate(config.agent_configs)]
 
