@@ -88,6 +88,7 @@ class PygameRenderer(Renderer):
         self._draw_game_objects()
 
         if mode == "human":
+            pygame.event.pump()
             pygame.display.update()
         elif mode == "rgb_array":
             screen = pygame.surfarray.array3d(self._screen)
