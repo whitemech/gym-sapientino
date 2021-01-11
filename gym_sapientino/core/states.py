@@ -21,7 +21,6 @@
 #
 
 """State representiations for different Sapientino game."""
-import math
 from abc import ABC
 from typing import Dict, List, Sequence, Tuple
 
@@ -119,8 +118,8 @@ class SapientinoState(ABC):
         """Encode into a dictionary."""
         return tuple(
             {
-                "discrete_x": math.floor(r.x),
-                "discrete_y": math.floor(r.y),
+                "discrete_x": round(r.x),
+                "discrete_y": round(r.y),
                 "x": r.x,
                 "y": r.y,
                 "velocity": r.velocity,
