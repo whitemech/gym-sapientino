@@ -99,6 +99,7 @@ def from_map(path_to_map: Path) -> SapientinoGrid:
     Each rows of characters correspond to a row of cells in the grid of the environment.
     The allowed characters are:
     - ' ', the empty cell;
+    - '#', a wall;
     - 'r', a cell with color red;
     - 'g', a cell with color green;
     - 'b', a cell with color blue;

@@ -29,6 +29,7 @@ import numpy as np
 from gym_sapientino.core.configurations import SapientinoConfiguration
 from gym_sapientino.core.types import (
     COMMAND_TYPES,
+    Colors,
     ContinuousCommand,
     DifferentialCommand,
     Direction,
@@ -133,7 +134,8 @@ class Robot:
             x += 1
         elif command == command.LEFT:
             x -= 1
-        return Robot(
+
+        new_robot = Robot(
             self.config,
             x,
             y,
@@ -142,6 +144,12 @@ class Robot:
             self.ang_velocity,
             self.id,
         )
+
+        # Check if not wall
+        if new_robot._on_wall():
+            return self
+
+        return new_robot
 
     def _step_differential(self, command: DifferentialCommand) -> "Robot":
         dx = (
@@ -166,7 +174,8 @@ class Robot:
         elif command == command.BACKWARD:
             x -= dx
             y -= dy
-        return Robot(
+
+        new_robot = Robot(
             self.config,
             x,
             y,
@@ -175,6 +184,12 @@ class Robot:
             self.ang_velocity,
             self.id,
         )
+
+        # Check if not wall
+        if new_robot._on_wall():
+            return self
+
+        return new_robot
 
     def _step_continuous(self, command: ContinuousCommand) -> "Robot":
         velocity = self.velocity
@@ -194,10 +209,22 @@ class Robot:
         ang_velocity = self.config.clip_angular_velocity(ang_velocity)
 
         r = Robot(self.config, x, y, velocity, direction.theta, ang_velocity, self.id)
-        return r.apply_velocity()
+        new_robot = r.apply_velocity()
+
+        # Check if not wall
+        if new_robot._on_wall():
+            return self
+
+        return new_robot
 
     @property
     def encoded_theta(self) -> int:
         """Encode the theta."""
         theta_integer = int(self.direction.theta)
         return theta_integer // 90
+
+    def _on_wall(self) -> bool:
+        """Check if the coordinate of this robot corresponds to a wall."""
+        x, y = self.discrete_x, self.discrete_y
+        cell = self.config.grid.cells[y][x]
+        return cell.color == Colors.WALL

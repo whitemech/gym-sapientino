@@ -190,7 +190,8 @@ class PygameRenderer(Renderer):
             self.size_square - 10,
             self.size_square - 10,
         )
-        pygame.draw.rect(self._screen, pygame.color.THECOLORS[str(c.color)], sqsz)
+        cellcolor = str(c.color) if c.color != Colors.WALL else "black"
+        pygame.draw.rect(self._screen, pygame.color.THECOLORS[cellcolor], sqsz)
         if counts >= 1:
             pygame.draw.rect(
                 self._screen,
