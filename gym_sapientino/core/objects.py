@@ -170,9 +170,6 @@ class Robot:
         elif command == command.FORWARD:
             x += dx
             y += dy
-        elif command == command.BACKWARD:
-            x -= dx
-            y -= dy
 
         new_robot = Robot(
             self.config,

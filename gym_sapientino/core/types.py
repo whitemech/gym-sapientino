@@ -65,9 +65,8 @@ class DifferentialCommand(Enum):
     LEFT = 0
     FORWARD = 1
     RIGHT = 2
-    BACKWARD = 3
-    BEEP = 4
-    NOP = 5
+    BEEP = 3
+    NOP = 4
 
     def __str__(self) -> str:
         """Get the string representation."""
@@ -78,8 +77,6 @@ class DifferentialCommand(Enum):
             return ">"
         elif cmd == DifferentialCommand.FORWARD:
             return "^"
-        elif cmd == DifferentialCommand.BACKWARD:
-            return "v"
         elif cmd == DifferentialCommand.BEEP:
             return "o"
         elif cmd == DifferentialCommand.NOP:
