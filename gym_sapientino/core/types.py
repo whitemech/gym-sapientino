@@ -92,11 +92,10 @@ class ContinuousCommand(Enum):
     """Enumeration for continuous commands."""
 
     LEFT = 0
-    FORWARD = 1
-    RIGHT = 2
-    BACKWARD = 3
-    BEEP = 4
-    NOP = 5
+    RIGHT = 1
+    FORWARD = 2
+    BEEP = 3
+    NOP = 4
 
     def __str__(self) -> str:
         """Get the string representation."""
@@ -107,8 +106,6 @@ class ContinuousCommand(Enum):
             return ">"
         elif cmd == ContinuousCommand.FORWARD:
             return "^"
-        elif cmd == ContinuousCommand.BACKWARD:
-            return "v"
         elif cmd == ContinuousCommand.BEEP:
             return "o"
         elif cmd == ContinuousCommand.NOP:

@@ -35,7 +35,6 @@ from gym_sapientino.core.types import (
     Direction,
     NormalCommand,
 )
-from gym_sapientino.utils import set_to_zero_if_small
 
 
 class Robot:
@@ -192,24 +191,27 @@ class Robot:
         return new_robot
 
     def _step_continuous(self, command: ContinuousCommand) -> "Robot":
-        velocity = self.velocity
-        direction = self.direction
-        ang_velocity = self.ang_velocity
+        # NOTE: changed continuous command. not moving in acceleration
         x, y = self.x, self.y
-        if command in {command.LEFT, command.RIGHT}:
-            sign = 1.0 if command == command.LEFT else -1.0
-            ang_velocity += sign * self.config.angular_acceleration
-            ang_velocity = set_to_zero_if_small(ang_velocity)
-        elif command in {command.FORWARD, command.BACKWARD}:
-            sign = -0.5 if command == command.BACKWARD else 1.0
-            velocity += sign * self.config.acceleration
-            velocity = set_to_zero_if_small(velocity)
+        direction = self.direction
+        if command == command.LEFT:
+            direction = direction.rotate_left(self.config.max_angular_vel)
+        elif command == command.RIGHT:
+            direction = direction.rotate_right(self.config.max_angular_vel)
+        elif command == command.FORWARD:
+            sin, cos = direction.sincos()
+            x += self.config.max_velocity * cos
+            y -= self.config.max_velocity * sin
 
-        velocity = self.config.clip_velocity(velocity)
-        ang_velocity = self.config.clip_angular_velocity(ang_velocity)
-
-        r = Robot(self.config, x, y, velocity, direction.theta, ang_velocity, self.id)
-        new_robot = r.apply_velocity()
+        new_robot = Robot(
+            self.config,
+            x,
+            y,
+            self.velocity,
+            direction.theta,
+            self.ang_velocity,
+            self.id,
+        )
 
         # Check if not wall
         if new_robot._on_wall():
