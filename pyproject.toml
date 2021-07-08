@@ -34,7 +34,7 @@ include = []
 
 [tool.poetry.dependencies]
 python = "^3.7"
-gym = "^0.17.2"
+gym = ">=0.17.2,<0.19"
 numpy = "^1.19.2"
 matplotlib = "^3.3.2"
 seaborn = "^0.11.0"
