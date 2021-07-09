@@ -29,6 +29,7 @@ import numpy as np
 from gym_sapientino.core.configurations import SapientinoConfiguration
 from gym_sapientino.core.types import (
     COMMAND_TYPES,
+    Colors,
     ContinuousCommand,
     DifferentialCommand,
     Direction,
@@ -116,7 +117,11 @@ class Robot:
             x += 1
         elif command == command.LEFT:
             x -= 1
-        return Robot(self.config, x, y, self.velocity, self.direction.theta, self.id)
+
+        r = Robot(self.config, x, y, self.velocity, self.direction.theta, self.id)
+
+        return r if not r._on_wall() else self
+
 
     def _step_differential(self, command: DifferentialCommand) -> "Robot":
         dx = (
@@ -141,7 +146,10 @@ class Robot:
         elif command == command.BACKWARD:
             x -= dx
             y -= dy
-        return Robot(self.config, x, y, self.velocity, direction.theta, self.id)
+
+        r = Robot(self.config, x, y, self.velocity, direction.theta, self.id)
+
+        return r if not r._on_wall() else self
 
     def _step_continuous(self, command: ContinuousCommand) -> "Robot":
         velocity = self.velocity
@@ -155,13 +163,27 @@ class Robot:
             sign = -1.0 if command == command.BACKWARD else 1.0
             velocity += sign * self.config.acceleration
             velocity = set_to_zero_if_small(velocity)
-
         velocity = self.config.clip_velocity(velocity)
+
+        sin, cos = direction.sincos()
+        x += velocity * cos
+        y -= velocity * sin
+
+        # Move if not on wall
         r = Robot(self.config, x, y, velocity, direction.theta, self.id)
-        return r.apply_velocity()
+        if not r._on_wall():
+            return r
+        else:
+            return Robot(self.config, self.x, self.y, 0.0, direction.theta, self.id)
 
     @property
     def encoded_theta(self) -> int:
         """Encode the theta."""
         theta_integer = int(self.direction.theta)
         return theta_integer // 90
+
+    def _on_wall(self) -> bool:
+        """Check if the coordinate of this robot corresponds to a wall."""
+        x, y = self.discrete_x, self.discrete_y
+        cell = self.config.grid.cells[y][x]
+        return cell.color == Colors.WALL

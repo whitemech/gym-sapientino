@@ -168,6 +168,7 @@ class Colors(Enum):
     """Enumeration for colors."""
 
     BLANK = "blank"
+    WALL = "wall"
     RED = "red"
     GREEN = "green"
     BLUE = "blue"
@@ -194,6 +195,7 @@ class Colors(Enum):
 color2int: Dict[Colors, int] = {c: i for i, c in enumerate(list(Colors))}
 id2color: Dict[str, Colors] = {
     " ": Colors.BLANK,
+    "#": Colors.WALL,
     "r": Colors.RED,
     "g": Colors.GREEN,
     "b": Colors.BLUE,
