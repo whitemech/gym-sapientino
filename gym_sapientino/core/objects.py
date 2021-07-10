@@ -122,7 +122,6 @@ class Robot:
 
         return r if not r._on_wall() else self
 
-
     def _step_differential(self, command: DifferentialCommand) -> "Robot":
         dx = (
             1 if self.direction.theta == 0 else -1 if self.direction.theta == 180 else 0
