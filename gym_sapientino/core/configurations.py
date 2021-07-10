@@ -23,63 +23,38 @@
 """Classes for the environment configurations."""
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Tuple, Type, Sequence
 
-import gym
 import numpy as np
 from gym.spaces import Discrete, MultiDiscrete
 from gym.spaces import Tuple as GymTuple
 
 from gym_sapientino.core.constants import ASSETS_DIR, DEFAULT_MAP_FILENAME
 from gym_sapientino.core.grid import SapientinoGrid, from_map
-from gym_sapientino.core.types import (
-    ACTION_TYPE,
-    COMMAND_ENUM_TYPES,
-    COMMAND_TYPES,
-    ContinuousCommand,
-    DifferentialCommand,
-    NormalCommand,
-    color2int,
-)
+from gym_sapientino.core.actions import Command, GridCommand, ActionsT
+from gym_sapientino.core.types import color2int
 
 
 @dataclass(frozen=True)
 class SapientinoAgentConfiguration:
-    """
-    Configuration for a single agent.
+    """Configuration for a single agent.
 
-    By default, the agent moves on the grid cell by cell,
-    with the action space as LEFT-UP-RIGHT-DOWN.
-
-    If differential is true, the agent can move forward and
-    backward, and can turn left and right (but on the same cell).
-    (continuous must be false).
-
-    If continuous is True, the agent can speed up, slow down,
-    turn left and turn right. "differential" is ignored.
+    We can set its initial position and the type of commands (action space)
+    it accepts. The default set of action is GridCommand. But we can use any
+    other class of the core.actions module or subclasses of Command.
     """
 
-    differential: bool = False
-    continuous: bool = False
-    initial_position: Optional[Tuple[float, float]] = None
+    initial_position: Tuple[float, float]
+    commands: Type[Command] = GridCommand
 
     @property
-    def action_type(self) -> COMMAND_ENUM_TYPES:
-        """Get the action enumeration."""
-        if self.continuous:
-            return ContinuousCommand
-        if self.differential:
-            return DifferentialCommand
-        return NormalCommand
-
-    @property
-    def action_space(self) -> gym.spaces.Discrete:
+    def action_space(self) -> Discrete:
         """Get the action space.."""
-        return Discrete(len(self.action_type))
+        return Discrete(len(self.commands))
 
-    def get_action(self, action: int) -> COMMAND_TYPES:
+    def get_action(self, action: int) -> Command:
         """Get the action."""
-        return self.action_type(action)  # type: ignore
+        return self.commands(action)
 
 
 @dataclass(frozen=True)
@@ -87,9 +62,7 @@ class SapientinoConfiguration:
     """A class to represent Sapientino configurations."""
 
     # game configurations
-    agent_configs: Tuple[SapientinoAgentConfiguration, ...] = (
-        SapientinoAgentConfiguration(),
-    )
+    agent_configs: Tuple[SapientinoAgentConfiguration, ...]
     path_to_map: Path = ASSETS_DIR / DEFAULT_MAP_FILENAME
     reward_outside_grid: float = -1.0
     reward_duplicate_beep: float = -1.0
@@ -97,6 +70,7 @@ class SapientinoConfiguration:
     angular_speed: float = 20.0
     acceleration: float = 0.02
     max_velocity: float = 0.20
+    # TODO: Velocity is maybe specific to the single agent
 
     def __post_init__(self):
         """
@@ -136,8 +110,9 @@ class SapientinoConfiguration:
         return self.agent_configs[0]
 
     @property
-    def observation_space(self) -> gym.spaces.Tuple:
+    def observation_space(self) -> GymTuple:
         """Get the observation space."""
+        # TODO: We could push action spaces to be wrappers or subclasses of dictspace
 
         def get_observation_space(agent_config):
             postfix = 2, self.nb_colors
@@ -148,10 +123,10 @@ class SapientinoConfiguration:
         return GymTuple(tuple(map(get_observation_space, self.agent_configs)))
 
     @property
-    def action_space(self) -> gym.spaces.Tuple:
+    def action_space(self) -> GymTuple:
         """Get the action space of the robots."""
         spaces = tuple(Discrete(ac.action_space.n) for ac in self.agent_configs)
-        return gym.spaces.Tuple(spaces)
+        return GymTuple(spaces)
 
     @property
     def nb_theta(self):
@@ -163,10 +138,11 @@ class SapientinoConfiguration:
         """Get the number of colors."""
         return len(color2int)
 
-    def get_action(self, action) -> ACTION_TYPE:
+    def get_action(self, actions: Sequence[int]) -> ActionsT:
         """Get the action."""
-        return [ac.get_action(a) for a, ac in zip(action, self.agent_configs)]
+        return [ac.get_action(a) for a, ac in zip(actions, self.agent_configs)]
 
     def clip_velocity(self, velocity: float) -> float:
         """Clip velocity."""
+        # TODO: is this the right place
         return float(np.clip(velocity, -self.max_velocity, self.max_velocity))

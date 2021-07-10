@@ -26,10 +26,7 @@ from typing import Dict, List, Sequence, Tuple
 
 from numpy import clip
 
-from gym_sapientino.core.configurations import (
-    SapientinoAgentConfiguration,
-    SapientinoConfiguration,
-)
+from gym_sapientino.core.configurations import SapientinoConfiguration
 from gym_sapientino.core.grid import Cell, SapientinoGrid
 from gym_sapientino.core.objects import Robot
 from gym_sapientino.core.types import COMMAND_TYPES, Colors
@@ -45,24 +42,13 @@ class SapientinoState(ABC):
         self.score = 0
         self._grid = self.config.grid
         self._grid.reset()
-        self._robots: List[Robot] = self._make_robots(config)
+        self._robots: List[Robot] = [
+            Robot(config, c.initial_position[0], c.initial_position[1], 0.0, 90.0, i)
+            for i, c in enumerate(self.config.agent_configs)
+        ]
         self._last_commands: List[COMMAND_TYPES] = [
             ac.action_type.NOP for ac in self.config.agent_configs
         ]
-
-    @staticmethod
-    def _make_robots(config: SapientinoConfiguration) -> List[Robot]:
-        """Instantiate the robot objects."""
-
-        def _make_robot(i: int, agent_config: SapientinoAgentConfiguration) -> Robot:
-            """Make a single robot."""
-            if agent_config.initial_position is None:
-                x, y = 1.0 + 2 * i, 2.0
-            else:
-                x, y = agent_config.initial_position
-            return Robot(config, x, y, 0.0, 90.0, i)
-
-        return [_make_robot(i, c) for i, c in enumerate(config.agent_configs)]
 
     @property
     def grid(self) -> SapientinoGrid:
