@@ -208,16 +208,15 @@ class ContinuousCommand(Command):
             velocity = set_to_zero_if_small(velocity)
         velocity = robot.config.clip_velocity(velocity)
 
-        sin, cos = direction.sincos()
-        x += velocity * cos
-        y -= velocity * sin
-
-        # Move if not on wall
+        # Move
         r = Robot(robot.config, x, y, velocity, direction.theta, robot.id)
+        r = r.apply_velocity()
+
+        # Wall?
         if not r._on_wall():
             return r
         else:
-            return Robot(robot.config, robot.x, robot.y, 0.0, direction.theta, robot.id)
+            return Robot(robot.config, x, y, 0.0, direction.theta, robot.id)
 
     @staticmethod
     def nop() -> "ContinuousCommand":
