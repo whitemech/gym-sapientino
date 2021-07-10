@@ -68,13 +68,11 @@ class SapientinoGrid:
     @property
     def rows(self):
         """Get the number of rows."""
-        # TODO allow different number of rows and columns.
         return len(self.cells)
 
     @property
     def columns(self):
         """Get the number of columns."""
-        # TODO allow different number of rows and columns.
         return len(self.cells[0])
 
     def iter_cells(self) -> Iterator[Cell]:
