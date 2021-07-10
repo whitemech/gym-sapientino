@@ -26,11 +26,11 @@ from typing import Dict, List, Sequence, Tuple
 
 from numpy import clip
 
+from gym_sapientino.core.actions import Command
 from gym_sapientino.core.configurations import SapientinoConfiguration
 from gym_sapientino.core.grid import Cell, SapientinoGrid
 from gym_sapientino.core.objects import Robot
 from gym_sapientino.core.types import Colors
-from gym_sapientino.core.actions import Command
 
 
 class SapientinoState(ABC):

@@ -23,15 +23,15 @@
 """Classes for the environment configurations."""
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Tuple, Type, Sequence
+from typing import Sequence, Tuple, Type
 
 import numpy as np
 from gym.spaces import Discrete, MultiDiscrete
 from gym.spaces import Tuple as GymTuple
 
+from gym_sapientino.core.actions import Command, GridCommand
 from gym_sapientino.core.constants import ASSETS_DIR, DEFAULT_MAP_FILENAME
 from gym_sapientino.core.grid import SapientinoGrid, from_map
-from gym_sapientino.core.actions import Command, GridCommand, ActionsT
 from gym_sapientino.core.types import color2int
 
 
@@ -138,7 +138,7 @@ class SapientinoConfiguration:
         """Get the number of colors."""
         return len(color2int)
 
-    def get_action(self, actions: Sequence[int]) -> ActionsT:
+    def get_action(self, actions: Sequence[int]) -> Sequence[Command]:
         """Get the action."""
         return [ac.get_action(a) for a, ac in zip(actions, self.agent_configs)]
 

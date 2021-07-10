@@ -22,13 +22,15 @@
 
 """Objects of the game."""
 
-from typing import Tuple
+from typing import TYPE_CHECKING, Tuple
 
 import numpy as np
 
-from gym_sapientino.core.actions import Command
-from gym_sapientino.core.configurations import SapientinoConfiguration
 from gym_sapientino.core.types import Colors, Direction
+
+if TYPE_CHECKING:
+    from gym_sapientino.core.actions import Command
+    from gym_sapientino.core.configurations import SapientinoConfiguration
 
 
 class Robot:
@@ -36,7 +38,7 @@ class Robot:
 
     def __init__(
         self,
-        config: SapientinoConfiguration,
+        config: "SapientinoConfiguration",
         x: float,
         y: float,
         velocity: float,
@@ -89,7 +91,7 @@ class Robot:
             self.config, new_x, new_y, self.velocity, self.direction.theta, self.id
         )
 
-    def step(self, command: Command) -> "Robot":
+    def step(self, command: "Command") -> "Robot":
         """Compute the next location."""
         return command.step(self)
 

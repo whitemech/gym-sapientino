@@ -1,7 +1,6 @@
 """Everithing concerning the various action spaces."""
 
 from enum import Enum
-from typing import Sequence
 
 from gym_sapientino.core.objects import Robot
 from gym_sapientino.utils import set_to_zero_if_small
@@ -17,7 +16,7 @@ class Command(Enum):
     def step(self, _robot: Robot) -> Robot:
         """Move a robot according to the command."""
         raise NotImplementedError
-    
+
     @staticmethod
     def nop() -> "Command":
         """Get the NO-OP action."""
@@ -27,10 +26,6 @@ class Command(Enum):
     def beep() -> "Command":
         """Get the "Beep" action."""
         raise NotImplementedError
-
-
-ActionT = Command
-ActionsT = Sequence[Command]
 
 
 class GridCommand(Command):
@@ -78,7 +73,7 @@ class GridCommand(Command):
         r = Robot(robot.config, x, y, robot.velocity, robot.direction.theta, robot.id)
 
         return r if not r._on_wall() else robot
-    
+
     @staticmethod
     def nop() -> "GridCommand":
         """Get the NO-OP action."""
@@ -125,7 +120,11 @@ class DifferentialGridCommand(Command):
     def step(self, robot: Robot) -> Robot:
         """Move a robot according to the command."""
         dx = (
-            1 if robot.direction.theta == 0 else -1 if robot.direction.theta == 180 else 0
+            1
+            if robot.direction.theta == 0
+            else -1
+            if robot.direction.theta == 180
+            else 0
         )
         dy = (
             -1
@@ -150,7 +149,7 @@ class DifferentialGridCommand(Command):
         r = Robot(robot.config, x, y, robot.velocity, direction.theta, robot.id)
 
         return r if not r._on_wall() else robot
-    
+
     @staticmethod
     def nop() -> "DifferentialGridCommand":
         """Get the NO-OP action."""
@@ -219,7 +218,7 @@ class ContinuousCommand(Command):
             return r
         else:
             return Robot(robot.config, robot.x, robot.y, 0.0, direction.theta, robot.id)
-    
+
     @staticmethod
     def nop() -> "ContinuousCommand":
         """Get the NO-OP action."""
