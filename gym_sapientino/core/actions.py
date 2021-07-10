@@ -1,13 +1,13 @@
 """Everithing concerning the various action spaces."""
 
-from enum import IntEnum
+from enum import Enum
 from typing import Sequence
 
 from gym_sapientino.core.objects import Robot
 from gym_sapientino.utils import set_to_zero_if_small
 
 
-class Command(IntEnum):
+class Command(Enum):
     """Base class for command classes.
 
     Subclasses need to define the actual enum values.
@@ -16,6 +16,16 @@ class Command(IntEnum):
 
     def step(self, _robot: Robot) -> Robot:
         """Move a robot according to the command."""
+        raise NotImplementedError
+    
+    @staticmethod
+    def nop() -> "Command":
+        """Get the NO-OP action."""
+        raise NotImplementedError
+
+    @staticmethod
+    def beep() -> "Command":
+        """Get the "Beep" action."""
         raise NotImplementedError
 
 
@@ -68,6 +78,16 @@ class GridCommand(Command):
         r = Robot(robot.config, x, y, robot.velocity, robot.direction.theta, robot.id)
 
         return r if not r._on_wall() else robot
+    
+    @staticmethod
+    def nop() -> "GridCommand":
+        """Get the NO-OP action."""
+        return GridCommand.NOP
+
+    @staticmethod
+    def beep() -> "GridCommand":
+        """Get the "Beep" action."""
+        return GridCommand.BEEP
 
 
 class DifferentialGridCommand(Command):
@@ -130,6 +150,16 @@ class DifferentialGridCommand(Command):
         r = Robot(robot.config, x, y, robot.velocity, direction.theta, robot.id)
 
         return r if not r._on_wall() else robot
+    
+    @staticmethod
+    def nop() -> "DifferentialGridCommand":
+        """Get the NO-OP action."""
+        return DifferentialGridCommand.NOP
+
+    @staticmethod
+    def beep() -> "DifferentialGridCommand":
+        """Get the "Beep" action."""
+        return DifferentialGridCommand.BEEP
 
 
 class ContinuousCommand(Command):
@@ -189,3 +219,13 @@ class ContinuousCommand(Command):
             return r
         else:
             return Robot(robot.config, robot.x, robot.y, 0.0, direction.theta, robot.id)
+    
+    @staticmethod
+    def nop() -> "ContinuousCommand":
+        """Get the NO-OP action."""
+        return ContinuousCommand.NOP
+
+    @staticmethod
+    def beep() -> "ContinuousCommand":
+        """Get the "Beep" action."""
+        return ContinuousCommand.BEEP

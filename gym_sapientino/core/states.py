@@ -29,7 +29,8 @@ from numpy import clip
 from gym_sapientino.core.configurations import SapientinoConfiguration
 from gym_sapientino.core.grid import Cell, SapientinoGrid
 from gym_sapientino.core.objects import Robot
-from gym_sapientino.core.types import COMMAND_TYPES, Colors
+from gym_sapientino.core.types import Colors
+from gym_sapientino.core.actions import Command
 
 
 class SapientinoState(ABC):
@@ -46,8 +47,8 @@ class SapientinoState(ABC):
             Robot(config, c.initial_position[0], c.initial_position[1], 0.0, 90.0, i)
             for i, c in enumerate(self.config.agent_configs)
         ]
-        self._last_commands: List[COMMAND_TYPES] = [
-            ac.action_type.NOP for ac in self.config.agent_configs
+        self._last_commands: List[Command] = [
+            ac.commands.nop() for ac in self.config.agent_configs
         ]
 
     @property
@@ -60,12 +61,12 @@ class SapientinoState(ABC):
         """Get the list of robots."""
         return tuple(self._robots)
 
-    def step(self, commands: Sequence[COMMAND_TYPES]) -> float:
+    def step(self, commands: Sequence[Command]) -> float:
         """Do a step."""
         assert len(commands) == len(self.robots), "Some commands are missing."
         total_reward = 0.0
 
-        next_robots = [r.step(c) for c, r in zip(commands, self.robots)]
+        next_robots = [c.step(r) for c, r in zip(commands, self.robots)]
         self._last_commands = list(commands)
 
         for i in range(len(next_robots)):
@@ -96,7 +97,7 @@ class SapientinoState(ABC):
         return result
 
     @property
-    def last_commands(self) -> Sequence[COMMAND_TYPES]:
+    def last_commands(self) -> Sequence[Command]:
         """Get the list of last commands."""
         return self._last_commands
 
@@ -111,7 +112,7 @@ class SapientinoState(ABC):
                 "velocity": r.velocity,
                 "theta": r.encoded_theta,
                 "angle": r.direction.theta,
-                "beep": int(self.last_commands[i] == self.last_commands[i].BEEP),
+                "beep": int(self.last_commands[i] == self.last_commands[i].beep()),
                 "color": self.current_cells[i].encoded_color,
             }
             for i, r in enumerate(self.robots)
@@ -130,9 +131,9 @@ class SapientinoState(ABC):
             r.velocity = 0.0
         return reward, r.move(x, y)
 
-    def _do_beep(self, robot: Robot, command: COMMAND_TYPES) -> float:
+    def _do_beep(self, robot: Robot, command: Command) -> float:
         reward = 0.0
-        if command == command.BEEP:
+        if command == command.beep():
             cell = self.grid.cells[robot.discrete_y][robot.discrete_x]
             self.grid.do_beep(cell)
             if cell.color != Colors.BLANK:

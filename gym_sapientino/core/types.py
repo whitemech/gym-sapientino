@@ -23,104 +23,11 @@
 """Define basic types."""
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, Sequence, Tuple, Type, Union
+from typing import Dict, Tuple
 
 import numpy as np
 
 from gym_sapientino.utils import set_to_zero_if_small
-
-
-class NormalCommand(Enum):
-    """Enumeration for normal commands."""
-
-    LEFT = 0
-    UP = 1
-    RIGHT = 2
-    DOWN = 3
-    BEEP = 4
-    NOP = 5
-
-    def __str__(self) -> str:
-        """Get the string representation."""
-        cmd = NormalCommand(self.value)
-        if cmd == NormalCommand.LEFT:
-            return "<"
-        elif cmd == NormalCommand.RIGHT:
-            return ">"
-        elif cmd == NormalCommand.UP:
-            return "^"
-        elif cmd == NormalCommand.DOWN:
-            return "v"
-        elif cmd == NormalCommand.BEEP:
-            return "o"
-        elif cmd == NormalCommand.NOP:
-            return "_"
-        else:
-            raise ValueError("Shouldn't be here...")
-
-
-class DifferentialCommand(Enum):
-    """Enumeration for differential commands."""
-
-    LEFT = 0
-    FORWARD = 1
-    RIGHT = 2
-    BACKWARD = 3
-    BEEP = 4
-    NOP = 5
-
-    def __str__(self) -> str:
-        """Get the string representation."""
-        cmd = DifferentialCommand(self.value)
-        if cmd == DifferentialCommand.LEFT:
-            return "<"
-        elif cmd == DifferentialCommand.RIGHT:
-            return ">"
-        elif cmd == DifferentialCommand.FORWARD:
-            return "^"
-        elif cmd == DifferentialCommand.BACKWARD:
-            return "v"
-        elif cmd == DifferentialCommand.BEEP:
-            return "o"
-        elif cmd == DifferentialCommand.NOP:
-            return "_"
-        else:
-            raise ValueError("Shouldn't be here...")
-
-
-class ContinuousCommand(Enum):
-    """Enumeration for continuous commands."""
-
-    LEFT = 0
-    FORWARD = 1
-    RIGHT = 2
-    BACKWARD = 3
-    BEEP = 4
-    NOP = 5
-
-    def __str__(self) -> str:
-        """Get the string representation."""
-        cmd = ContinuousCommand(self.value)
-        if cmd == ContinuousCommand.LEFT:
-            return "<"
-        elif cmd == ContinuousCommand.RIGHT:
-            return ">"
-        elif cmd == ContinuousCommand.FORWARD:
-            return "^"
-        elif cmd == ContinuousCommand.BACKWARD:
-            return "v"
-        elif cmd == ContinuousCommand.BEEP:
-            return "o"
-        elif cmd == ContinuousCommand.NOP:
-            return "_"
-        else:
-            raise ValueError("Shouldn't be here...")
-
-
-COMMAND_TYPES = Union[NormalCommand, DifferentialCommand, ContinuousCommand]
-COMMAND_ENUM_TYPES = Union[
-    Type[NormalCommand], Type[DifferentialCommand], Type[ContinuousCommand]
-]
 
 
 @dataclass
@@ -207,5 +114,3 @@ id2color: Dict[str, Colors] = {
     "P": Colors.PURPLE,
 }
 color2id = dict(map(reversed, id2color.items()))  # type: ignore
-
-ACTION_TYPE = Sequence[COMMAND_TYPES]
