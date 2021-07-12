@@ -24,16 +24,19 @@
 import logging
 
 import pytest
+from typing import Tuple
 
 from gym_sapientino import SapientinoDictSpace, __version__
 from gym_sapientino.core.configurations import SapientinoAgentConfiguration
+from gym_sapientino import SapientinoDictSpace, __version__, actions, observations
+from gym_sapientino.core.configurations import SapientinoAgentConfiguration, SapientinoConfiguration
 
 NB_ROLLOUT_STEPS = 20
 
 
 def test_version():
     """Test version."""
-    assert __version__ == "0.2.0"
+    assert __version__ == "0.2.1"
 
 
 @pytest.fixture(autouse=True, scope="session")
@@ -45,14 +48,9 @@ def with_rendering(request):
     return result
 
 
-@pytest.mark.parametrize(
-    "differential,continuous", [(False, False), (True, False), (False, True)]
-)
-def test_rollout(differential, continuous, with_rendering):
+def test_rollout(with_rendering):
     """Test instantiation of the environment."""
-    agent_config = SapientinoAgentConfiguration(
-        differential=differential, continuous=continuous
-    )
+    agent_config = SapientinoAgentConfiguration(initial_position=(4,4))
     env = SapientinoDictSpace(agent_configs=(agent_config,))
 
     env.reset()
@@ -62,3 +60,21 @@ def test_rollout(differential, continuous, with_rendering):
             env.render(mode="rgb_array")
 
     env.close()
+
+
+@pytest.fixture
+def sapientino_dict(
+        agents_conf: Tuple[SapientinoAgentConfiguration]
+    ) -> SapientinoDictSpace:
+    """Create a sapientino instance from agents configurations."""
+    conf = SapientinoConfiguration(
+        agents_conf,
+        reward_per_step=0.0,
+        reward_outside_grid=0.0,
+        reward_duplicate_beep=0.0,
+        acceleration=0.1,
+    )
+    return SapientinoDictSpace(conf)
+
+
+# class test_multiple_agents(sa
