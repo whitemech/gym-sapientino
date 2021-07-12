@@ -2,11 +2,11 @@
 
 SapientinoDictSpace is the most generic class, which returns all
 the information in form of a dictionary. Features classes define an observation
-space and extract information accordingly.
+space and extract information accordingly. 
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict
+from typing import Any, Dict, Sequence, Type
 
 import gym
 import numpy as np
@@ -17,31 +17,23 @@ from gym_sapientino import SapientinoDictSpace, utils
 DictSpace = Dict[str, Any]
 
 
-class Features(ABC, gym.Wrapper):
+class Features(ABC):
     """Base class for all observation spaces.
 
     By subclassing from this class, we can define any observation space
     computed over SapientinoDictSpace.
     The member "dict_state" stores last observation received from
-    SapientinoDictSpace.
+    SapientinoDictSpace. UseFeatures is a wrapper useful to apply features
+    to the environment.
     """
 
-    def __init__(self, env: SapientinoDictSpace):
-        """Initialize."""
-        gym.Wrapper.__init__(self, env)
-        assert isinstance(self.env, SapientinoDictSpace)
-        self.dict_space = env.observation_space
+    def __init__(self, dict_space: spaces.Dict):
+        """Initialize.
+
+        :param dict_space: the input observation space.
+        """
+        self.dict_space = dict_space
         self.observation_space = self.compute_space()
-
-    def reset(self, **kwargs):
-        """Gym reset."""
-        self.dict_state = self.env.reset(**kwargs)
-        return self.observation(self.dict_state)
-
-    def step(self, action):
-        """Gym step."""
-        self.dict_state, reward, done, info = self.env.step(action)
-        return self.compute_observation(self.dict_state), reward, done, info
 
     @abstractmethod
     def compute_space(self) -> gym.Space:
@@ -52,6 +44,45 @@ class Features(ABC, gym.Wrapper):
     def compute_observation(self, observation: DictSpace) -> Any:
         """Transform according to observation space."""
         pass
+
+
+class UseFeatures(gym.ObservationWrapper):
+    """Choose a set of features for each robot in the environment.
+
+    The feature classes of this module define the observation space for one
+    agent only. Use this class to apply one feature space for each robot.
+    """
+
+    def __init__(self, env: SapientinoDictSpace, features: Sequence[Type[Features]]):
+        """Initialize.
+
+        :param features: one feature for each robot.
+        """
+        # Check
+        if len(features) != env.configuration.nb_robots:
+            raise ValueError(
+                f"Wrong number of features: expected {env.configuration.nb_robots}")
+
+        # Store
+        super().__init__(env)
+        self.features = [
+            features[i](env.observation_space[i])
+            for i in range(len(features))
+        ]
+
+        # Obs space
+        self.observation_space = spaces.Tuple([
+            self.features[i].compute_space()
+            for i in range(len(features))
+        ])
+
+    def observation(self, observation):
+        """Compute an observation with features."""
+        assert len(observation) == len(self.features)
+        return [
+            self.features[i].compute_observation(observation[i])
+            for i in range(len(observation))
+        ]
 
 
 class DiscreteFeatures(Features):
@@ -65,15 +96,15 @@ class DiscreteFeatures(Features):
         x_space: spaces.Discrete = self.dict_space.spaces["discrete_x"]
         y_space: spaces.Discrete = self.dict_space.spaces["discrete_y"]
         beep_space: spaces.Discrete = self.dict_space.spaces["beep"]
-        return spaces.MultiDiscrete([x_space.n, y_space.n, beep_space])
+        return spaces.MultiDiscrete([x_space.n, y_space.n, beep_space.n])
 
     def compute_observation(self, observation: DictSpace) -> Any:
         """Transform according to observation space."""
-        new_state = (
+        new_state = np.array([
             observation["discrete_x"],
             observation["discrete_y"],
             observation["beep"],
-        )
+        ], dtype=int)
         return new_state
 
 
@@ -93,12 +124,12 @@ class DiscreteAngleFeatures(Features):
 
     def compute_observation(self, observation: DictSpace) -> Any:
         """Transform according to observation space."""
-        new_state = (
+        new_state = np.array([
             observation["discrete_x"],
             observation["discrete_y"],
             observation["theta"],
             observation["beep"],
-        )
+        ], dtype=int)
         return new_state
 
 

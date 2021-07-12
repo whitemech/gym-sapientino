@@ -36,6 +36,7 @@ from gym_sapientino.core.configurations import (
 )
 import gym_sapientino.assets
 from gym_sapientino.wrappers.gym import SingleAgentWrapper
+from gym_sapientino.wrappers import observations
 from gym_sapientino.core import actions
 
 NB_ROLLOUT_STEPS = 20
@@ -158,4 +159,91 @@ def test_different_action_spaces():
     rollout(env)
 
 
-# TODO Test observation spaces
+def test_discrete_features():
+    """Test discrete features."""
+    agent_conf = SapientinoAgentConfiguration(
+        initial_position=(3,3),
+        commands=actions.ContinuousCommand,
+    )
+    env = sapientino_dict(
+        agents_conf=(agent_conf,)
+    )
+    env = observations.UseFeatures(
+        env=env,
+        features=[observations.DiscreteFeatures],
+    )
+    assert isinstance(env.observation_space, spaces.Tuple)
+    assert len(env.observation_space) == 1
+    assert isinstance(env.observation_space[0], spaces.MultiDiscrete)
+    rollout(env)
+
+
+def test_differential_features():
+    """Test differential features."""
+    agent_conf = SapientinoAgentConfiguration(
+        initial_position=(3,3),
+        commands=actions.ContinuousCommand,
+    )
+    env = sapientino_dict(
+        agents_conf=(agent_conf,)
+    )
+    env = observations.UseFeatures(
+        env=env,
+        features=[observations.DiscreteAngleFeatures],
+    )
+    assert isinstance(env.observation_space, spaces.Tuple)
+    assert len(env.observation_space) == 1
+    assert isinstance(env.observation_space[0], spaces.MultiDiscrete)
+    rollout(env)
+
+
+def test_continuous_features():
+    """Test continuous features."""
+    agent_conf = SapientinoAgentConfiguration(
+        initial_position=(3,3),
+        commands=actions.ContinuousCommand,
+    )
+    env = sapientino_dict(
+        agents_conf=(agent_conf,)
+    )
+    env = observations.UseFeatures(
+        env=env,
+        features=[observations.ContinuousFeatures],
+    )
+    assert isinstance(env.observation_space, spaces.Tuple)
+    assert len(env.observation_space) == 1
+    assert isinstance(env.observation_space[0], spaces.Box)
+    rollout(env)
+
+
+def test_all_features():
+    """Test all features."""
+    agents_conf = (
+        SapientinoAgentConfiguration(
+            initial_position=(3,3),
+            commands=actions.GridCommand,
+        ),
+        SapientinoAgentConfiguration(
+            initial_position=(3,4),
+            commands=actions.DifferentialGridCommand,
+        ),
+        SapientinoAgentConfiguration(
+            initial_position=(3,2),
+            commands=actions.ContinuousCommand,
+        ),
+    )
+    env = sapientino_dict(agents_conf)
+    env = observations.UseFeatures(
+        env=env,
+        features=[
+            observations.DiscreteFeatures,
+            observations.DiscreteAngleFeatures,
+            observations.ContinuousFeatures,
+        ],
+    )
+    assert isinstance(env.observation_space, spaces.Tuple)
+    assert len(env.observation_space) == 3
+    assert isinstance(env.observation_space[0], spaces.MultiDiscrete)
+    assert isinstance(env.observation_space[1], spaces.MultiDiscrete)
+    assert isinstance(env.observation_space[2], spaces.Box)
+    rollout(env)
