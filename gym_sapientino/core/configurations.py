@@ -42,6 +42,9 @@ class SapientinoAgentConfiguration:
     We can set its initial position and the type of commands (action space)
     it accepts. The default set of action is GridCommand. But we can use any
     other class of the core.actions module or subclasses of Command.
+    Most arguments have intuitive meaning. angle_parts is the number of
+    parts in which the orientations are subdivided (for example, angle_parts=4
+    creates one unit per each 90°).
     """
 
     initial_position: Tuple[float, float]
@@ -50,6 +53,7 @@ class SapientinoAgentConfiguration:
     acceleration: float = 0.02
     max_velocity: float = 0.20
     min_velocity: float = -0.10
+    angle_parts: int = 4
 
     @property
     def action_space(self) -> Discrete:

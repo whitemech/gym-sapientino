@@ -33,10 +33,12 @@ from gym import spaces
 import gym_sapientino.assets
 from gym_sapientino import SapientinoDictSpace, __version__
 from gym_sapientino.core import actions
+from gym_sapientino.core.actions import Command
 from gym_sapientino.core.configurations import (
     SapientinoAgentConfiguration,
     SapientinoConfiguration,
 )
+from gym_sapientino.core.objects import Robot
 from gym_sapientino.wrappers import observations
 from gym_sapientino.wrappers.gym import SingleAgentWrapper
 
@@ -250,4 +252,72 @@ def test_all_features():
     assert isinstance(env.observation_space[0], spaces.MultiDiscrete)
     assert isinstance(env.observation_space[1], spaces.MultiDiscrete)
     assert isinstance(env.observation_space[2], spaces.Box)
+    rollout(env)
+
+
+class Differential45Command(Command):
+    """Command with rotations fo 45 degrees."""
+
+    LEFT = 0
+    FORWARD = 1
+    RIGHT = 2
+    BEEP = 3
+    NOP = 4
+
+    def step(self, robot: Robot) -> Robot:
+        """Move a robot according to the command."""
+        sin, cos = robot.direction.sincos()
+        dx = (
+            1
+            if cos > 0.1
+            else -1
+            if cos < -0.1
+            else 0
+        )
+        dy = (
+            -1
+            if sin > 0.1
+            else 1
+            if sin < -0.1
+            else 0
+        )
+        x, y = robot.x, robot.y
+        direction = robot.direction
+        if self == self.LEFT:
+            direction = direction.rotate(45.0)
+        elif self == self.RIGHT:
+            direction = direction.rotate(-45.0)
+        elif self == self.FORWARD:
+            x += dx
+            y += dy
+
+        r = Robot(robot.config, x, y, robot.velocity, direction.theta, robot.id)
+
+        return r if not r._on_wall() else robot
+
+    @staticmethod
+    def nop() -> "Differential45Command":
+        """Get the NO-OP action."""
+        return Differential45Command.NOP
+
+    @staticmethod
+    def beep() -> "Differential45Command":
+        """Get the "Beep" action."""
+        return Differential45Command.BEEP
+
+def test_45_deg():
+    """Test action space of 45 degrees."""
+    agents_conf = (
+        SapientinoAgentConfiguration(
+            initial_position=(3,3),
+            commands=Differential45Command,
+            angle_parts=8,
+        ),
+        SapientinoAgentConfiguration(
+            initial_position=(3,4),
+            commands=actions.DifferentialGridCommand,
+            angle_parts=4,
+        ),
+    )
+    env = sapientino_dict(agents_conf)
     rollout(env)

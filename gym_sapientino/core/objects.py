@@ -99,12 +99,15 @@ class Robot:
     @property
     def encoded_theta(self) -> int:
         """Encode the theta."""
-        # TODO: this should depend on configuration
-        theta_integer = int(self.direction.theta)
-        return theta_integer // 90
+        angle_step = 360 / self.robot_config.angle_parts
+        return int(self.direction.theta / angle_step)
 
     def _on_wall(self) -> bool:
-        """Check if the coordinate of this robot corresponds to a wall."""
+        """Check if the coordinate correspond to a wall or outside the map."""
         x, y = self.discrete_x, self.discrete_y
+        if x < 0 or x >= self.config.rows:
+            return True
+        if y < 0 or y >= self.config.columns:
+            return True
         cell = self.config.grid.cells[y][x]
         return cell.color == Colors.WALL
