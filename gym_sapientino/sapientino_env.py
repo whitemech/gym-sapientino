@@ -25,7 +25,8 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
 
-import gym as gym
+import gym
+from gym import spaces
 
 from gym_sapientino.core.configurations import SapientinoConfiguration
 from gym_sapientino.core.states import SapientinoState, make_state
@@ -34,7 +35,10 @@ from gym_sapientino.rendering.pygame import PygameRenderer
 
 
 class Sapientino(gym.Env, ABC):
-    """The Sapientino Gym environment."""
+    """The Sapientino Gym environment.i
+
+    Subclasses must define an observation_space.
+    """
 
     metadata = {"render.modes": ["human", "rgb_array"]}
 
@@ -62,11 +66,6 @@ class Sapientino(gym.Env, ABC):
     def action_space(self) -> gym.Space:
         """Get the action space."""
         return self.configuration.action_space
-
-    @property
-    def observation_space(self) -> gym.Space:
-        """Get the observation space."""
-        return self.configuration.observation_space
 
     def step(self, action: Any):
         """Execute an action."""

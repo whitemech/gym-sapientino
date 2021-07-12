@@ -22,11 +22,14 @@
 
 """Sapientino environments using a "dict" state space."""
 import sys
+from typing import Optional
 
-from gym.spaces import Box, Discrete
-from gym.spaces import Tuple as GymTuple
+from gym.spaces import Box
 from gym.spaces import Dict as GymDict
+from gym.spaces import Discrete
+from gym.spaces import Tuple as GymTuple
 
+from gym_sapientino.core.configurations import SapientinoConfiguration
 from gym_sapientino.core.states import SapientinoState
 from gym_sapientino.sapientino_env import Sapientino
 
@@ -43,9 +46,13 @@ class SapientinoDictSpace(Sapientino):
     - The color of the current cell (Discrete)
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(
+        self,
+        configuration: Optional[SapientinoConfiguration] = None,
+        *args, **kwargs,
+    ):
         """Initialize the dictionary space."""
-        super().__init__(*args, **kwargs)
+        super().__init__(configuration=configuration, *args, **kwargs)
 
         self._discrete_x_space = Discrete(self.configuration.columns)
         self._discrete_y_space = Discrete(self.configuration.rows)
