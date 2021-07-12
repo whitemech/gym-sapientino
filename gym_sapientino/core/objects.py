@@ -98,6 +98,7 @@ class Robot:
     @property
     def encoded_theta(self) -> int:
         """Encode the theta."""
+        # TODO: this should depend on configuration
         theta_integer = int(self.direction.theta)
         return theta_integer // 90
 

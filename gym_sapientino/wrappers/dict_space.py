@@ -23,10 +23,10 @@
 """Sapientino environments using a "dict" state space."""
 import sys
 
-from gym.spaces import Box, Dict, Discrete
+from gym.spaces import Box, Discrete
 from gym.spaces import Tuple as GymTuple
+from gym.spaces import Dict as GymDict
 
-from gym_sapientino.core.actions import DifferentialGridCommand
 from gym_sapientino.core.states import SapientinoState
 from gym_sapientino.sapientino_env import Sapientino
 
@@ -63,9 +63,8 @@ class SapientinoDictSpace(Sapientino):
     def observation_space(self) -> GymTuple:
         """Get the observation space."""
 
-        def get_agent_dict_space(i: int):
-            agent_config = self.configuration.agent_configs[i]
-            d = {
+        observation_spaces = [
+            GymDict({
                 "discrete_x": self._discrete_x_space,
                 "discrete_y": self._discrete_y_space,
                 "x": self._x_space,
@@ -75,15 +74,9 @@ class SapientinoDictSpace(Sapientino):
                 "angle": self._angle_space,
                 "beep": self._beep_space,
                 "color": self._color_space,
-            }
-            if agent_config.commands == DifferentialGridCommand:
-                d["theta"] = self._theta_space
-            # TODO: observation space should not depend on action space
-            return Dict(d)
-
-        return GymTuple(
-            tuple(map(get_agent_dict_space, range(self.configuration.nb_robots)))
-        )
+            })
+        ]
+        return GymTuple(observation_spaces)
 
     def observe(self, state: SapientinoState):
         """Observe the state."""

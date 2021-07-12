@@ -25,6 +25,7 @@ from functools import reduce
 from typing import List
 
 import numpy as np
+from gym import spaces
 
 
 def encode(obs: List[int], spaces: List[int]) -> int:
@@ -72,3 +73,20 @@ def decode(obs: int, spaces: List[int]) -> List[int]:
 def set_to_zero_if_small(x) -> float:
     """Set to zero if it is a small number."""
     return 0.0 if np.isclose(x, 0.0) else x
+
+
+def combine_boxes(*boxes: spaces.Box) -> spaces.Box:
+    """Combine a list of gym.Box spaces into one.
+
+    It merges a list of unidimensional boxes to one unidimensional box by
+    combining along the only dimension. Limits are kept separate.
+    Output type is np.float32.
+    """
+    # Unidimensional spaces
+    assert all(len(space.shape) == 1 for space in boxes)
+
+    # Concat
+    lows = np.concatenate([space.low for space in boxes])
+    highs = np.concatenate([space.high for space in boxes])
+
+    return spaces.Box(lows, highs)
