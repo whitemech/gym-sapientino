@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 #
 # Copyright 2019-2020 Marco Favorito, Luca Iocchi
 #
@@ -22,16 +23,21 @@
 
 """Tests for the Sapientino Gym environment."""
 import logging
+from importlib import resources
+from typing import Tuple, cast
 
+import gym
 import pytest
-from typing import Tuple
 
 from gym_sapientino import SapientinoDictSpace, __version__
-from gym_sapientino.core.configurations import SapientinoAgentConfiguration
-from gym_sapientino import SapientinoDictSpace, __version__, actions, observations
-from gym_sapientino.core.configurations import SapientinoAgentConfiguration, SapientinoConfiguration
+from gym_sapientino.core.configurations import (
+    SapientinoAgentConfiguration,
+    SapientinoConfiguration,
+)
 
 NB_ROLLOUT_STEPS = 20
+
+map_resource = resources.path("gym_sapientino.assets", "map1.txt")
 
 
 def test_version():
@@ -62,19 +68,48 @@ def test_rollout(with_rendering):
     env.close()
 
 
-@pytest.fixture
 def sapientino_dict(
         agents_conf: Tuple[SapientinoAgentConfiguration]
     ) -> SapientinoDictSpace:
     """Create a sapientino instance from agents configurations."""
-    conf = SapientinoConfiguration(
-        agents_conf,
-        reward_per_step=0.0,
-        reward_outside_grid=0.0,
-        reward_duplicate_beep=0.0,
-        acceleration=0.1,
-    )
-    return SapientinoDictSpace(conf)
+    with map_resource as map_path:
+        conf = SapientinoConfiguration(
+            agents_conf,
+            path_to_map=map_path,
+            reward_per_step=0.0,
+            reward_outside_grid=0.0,
+            reward_duplicate_beep=0.0,
+            acceleration=0.1,
+        )
+        env = SapientinoDictSpace(conf)
+    return env
 
 
-# class test_multiple_agents(sa
+def rollout(env: gym.Env):
+    """Perform rollout."""
+    env.reset()
+    for _ in range(NB_ROLLOUT_STEPS):
+        action = cast(gym.Space, env.action_space).sample()
+        ret = env.step(action)
+        logging.debug(ret)
+
+
+def test_one():
+    """Tests the initializtion with one agent."""
+    agent_conf = SapientinoAgentConfiguration(initial_position=(3,3))
+    env = sapientino_dict((agent_conf,))
+    rollout(env)
+
+
+# TODO
+
+# Test with two agents
+
+
+# Test with single agent wrapper
+
+
+# Test observation spaces
+
+
+# Test action spaces
