@@ -27,6 +27,7 @@ from importlib import resources
 from typing import Tuple, cast
 
 import gym
+from gym import spaces
 
 from gym_sapientino import SapientinoDictSpace, __version__
 from gym_sapientino.core.configurations import (
@@ -34,6 +35,8 @@ from gym_sapientino.core.configurations import (
     SapientinoConfiguration,
 )
 import gym_sapientino.assets
+from gym_sapientino.wrappers.gym import SingleAgentWrapper
+from gym_sapientino.core import actions
 
 NB_ROLLOUT_STEPS = 20
 
@@ -90,14 +93,69 @@ def test_two():
     rollout(env)
 
 
+def test_single_agent():
+    """Test a simplified observation space for one agent only."""
+    env = sapientino_dict(
+        agents_conf=(SapientinoAgentConfiguration(initial_position=(3,3)),)
+    )
+    env = SingleAgentWrapper(env)
+    assert isinstance(env.action_space, spaces.Discrete)
+    assert isinstance(env.observation_space, spaces.Dict)
+    rollout(env)
 
-# TODO
+
+def test_discrete_default():
+    """Test the discrete action space (default)."""
+    agent_conf = SapientinoAgentConfiguration(initial_position=(3,3))
+    env = sapientino_dict(
+        agents_conf=(agent_conf,)
+    )
+    assert agent_conf.commands == actions.GridCommand, "Wrong default"
+    rollout(env)
 
 
-# Test with single agent wrapper
+def test_discrete_differential():
+    """Test the differential command action space."""
+    agent_conf = SapientinoAgentConfiguration(
+        initial_position=(3,3),
+        commands=actions.DifferentialGridCommand,
+    )
+    env = sapientino_dict(
+        agents_conf=(agent_conf,)
+    )
+    rollout(env)
 
 
-# Test observation spaces
+def test_continuous():
+    """Test continuous motions."""
+    agent_conf = SapientinoAgentConfiguration(
+        initial_position=(3,3),
+        commands=actions.ContinuousCommand,
+    )
+    env = sapientino_dict(
+        agents_conf=(agent_conf,)
+    )
+    rollout(env)
 
 
-# Test action spaces
+def test_different_action_spaces():
+    """Test agents with different action spaces."""
+    agents_conf = (
+        SapientinoAgentConfiguration(
+            initial_position=(3,3),
+            commands=actions.GridCommand,
+        ),
+        SapientinoAgentConfiguration(
+            initial_position=(3,4),
+            commands=actions.DifferentialGridCommand,
+        ),
+        SapientinoAgentConfiguration(
+            initial_position=(3,2),
+            commands=actions.ContinuousCommand,
+        ),
+    )
+    env = sapientino_dict(agents_conf)
+    rollout(env)
+
+
+# TODO Test observation spaces
