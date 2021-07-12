@@ -1,9 +1,15 @@
 """Everithing concerning the various action spaces."""
 
 from enum import Enum
+from typing import TYPE_CHECKING
+
+import numpy as np
 
 from gym_sapientino.core.objects import Robot
 from gym_sapientino.utils import set_to_zero_if_small
+
+if TYPE_CHECKING:
+    from gym_sapientino.core.configurations import SapientinoAgentConfiguration
 
 
 class Command(Enum):
@@ -200,13 +206,13 @@ class ContinuousCommand(Command):
         x, y = robot.x, robot.y
         if self in {self.LEFT, self.RIGHT}:
             sign = 1.0 if self == self.LEFT else -1.0
-            delta_theta = sign * robot.config.angular_speed
+            delta_theta = sign * robot.robot_config.angular_speed
             direction = robot.direction.rotate(delta_theta)
         elif self in {self.FORWARD, self.BACKWARD}:
             sign = -1.0 if self == self.BACKWARD else 1.0
-            velocity += sign * robot.config.acceleration
+            velocity += sign * robot.robot_config.acceleration
             velocity = set_to_zero_if_small(velocity)
-        velocity = robot.config.clip_velocity(velocity)
+        velocity = self.clip_velocity(velocity, robot_config=robot.robot_config)
 
         # Move
         r = Robot(robot.config, x, y, velocity, direction.theta, robot.id)
@@ -217,6 +223,11 @@ class ContinuousCommand(Command):
             return r
         else:
             return Robot(robot.config, x, y, 0.0, direction.theta, robot.id)
+
+    @staticmethod
+    def clip_velocity(velocity: float, robot_config: "SapientinoAgentConfiguration") -> float:
+        """Clip velocity."""
+        return float(np.clip(velocity, robot_config.min_velocity, robot_config.max_velocity))
 
     @staticmethod
     def nop() -> "ContinuousCommand":

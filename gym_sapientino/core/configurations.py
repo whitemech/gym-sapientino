@@ -24,8 +24,7 @@
 from dataclasses import dataclass
 from typing import Sequence, Tuple, Type
 
-import numpy as np
-from gym.spaces import Discrete, MultiDiscrete
+from gym.spaces import Discrete
 from gym.spaces import Tuple as GymTuple
 
 import gym_sapientino.assets as assets
@@ -47,6 +46,10 @@ class SapientinoAgentConfiguration:
 
     initial_position: Tuple[float, float]
     commands: Type[Command] = GridCommand
+    angular_speed: float = 20.0
+    acceleration: float = 0.02
+    max_velocity: float = 0.20
+    min_velocity: float = -0.10
 
     @property
     def action_space(self) -> Discrete:
@@ -68,10 +71,6 @@ class SapientinoConfiguration:
     reward_outside_grid: float = -1.0
     reward_duplicate_beep: float = -1.0
     reward_per_step: float = -0.01
-    angular_speed: float = 20.0
-    acceleration: float = 0.02
-    max_velocity: float = 0.20
-    # TODO: Velocity is maybe specific to the single agent
 
     def __post_init__(self):
         """
@@ -109,19 +108,6 @@ class SapientinoConfiguration:
         return self.agent_configs[0]
 
     @property
-    def observation_space(self) -> GymTuple:
-        """Get the observation space."""
-        # TODO: We could push action spaces to be wrappers or subclasses of dictspace
-
-        def get_observation_space(agent_config):
-            postfix = 2, self.nb_colors
-            if agent_config.differential:
-                return MultiDiscrete((self.columns, self.rows, self.nb_theta) + postfix)
-            return MultiDiscrete((self.columns, self.rows) + postfix)
-
-        return GymTuple(tuple(map(get_observation_space, self.agent_configs)))
-
-    @property
     def action_space(self) -> GymTuple:
         """Get the action space of the robots."""
         spaces = tuple(Discrete(ac.action_space.n) for ac in self.agent_configs)
@@ -140,8 +126,3 @@ class SapientinoConfiguration:
     def get_action(self, actions: Sequence[int]) -> Sequence[Command]:
         """Get the action."""
         return [ac.get_action(a) for a, ac in zip(actions, self.agent_configs)]
-
-    def clip_velocity(self, velocity: float) -> float:
-        """Clip velocity."""
-        # TODO: is this the right place
-        return float(np.clip(velocity, -self.max_velocity, self.max_velocity))

@@ -26,7 +26,6 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
 
 import gym
-from gym import spaces
 
 from gym_sapientino.core.configurations import SapientinoConfiguration
 from gym_sapientino.core.states import SapientinoState, make_state

@@ -168,10 +168,10 @@ class ContinuousFeatures(Features):
     def compute_observation(self, observation: DictSpace) -> Any:
         """Transform according to observation space."""
         # Deg to radians
-        cos = np.cos(observation["angle"] / 180 * np.pi)
-        sin = np.sin(observation["angle"] / 180 * np.pi)
+        cos = np.reshape(np.cos(observation["angle"] / 180 * np.pi), [1])
+        sin = np.reshape(np.sin(observation["angle"] / 180 * np.pi), [1])
 
-        new_state = np.array(
+        new_state = np.concatenate(
             [
                 observation["x"],
                 observation["y"],
@@ -179,8 +179,8 @@ class ContinuousFeatures(Features):
                 sin,
                 observation["velocity"] * cos,
                 observation["velocity"] * sin,
-                observation["beep"]
+                np.reshape(observation["beep"], [1]),
             ],
-            dtype=float,
+            dtype=np.float32,
         )
         return new_state

@@ -47,6 +47,7 @@ class Robot:
     ):
         """Initialize the robot."""
         self.config = config
+        self.robot_config = config.agent_configs[id_]
         self._id = id_
         self.x = x
         self.y = y

@@ -58,9 +58,7 @@ class SapientinoDictSpace(Sapientino):
         self._discrete_y_space = Discrete(self.configuration.rows)
         self._x_space = Box(0.0, self.configuration.columns, shape=[1])
         self._y_space = Box(0.0, self.configuration.rows, shape=[1])
-        self._velocity_space = Box(
-            -self.configuration.max_velocity, self.configuration.max_velocity, shape=[1]
-        )
+        self._velocity_space = lambda m, M: Box(m, M, shape=[1])
         self._theta_space = Discrete(self.configuration.nb_theta)
         self._angle_space = Box(0.0, 360.0 - sys.float_info.epsilon, shape=[1])
         self._beep_space = Discrete(2)
@@ -69,20 +67,22 @@ class SapientinoDictSpace(Sapientino):
     @property
     def observation_space(self) -> GymTuple:
         """Get the observation space."""
-
         observation_spaces = [
             GymDict({
                 "discrete_x": self._discrete_x_space,
                 "discrete_y": self._discrete_y_space,
                 "x": self._x_space,
                 "y": self._y_space,
-                "velocity": self._velocity_space,
+                "velocity": self._velocity_space(
+                    self.configuration.agent_configs[i].min_velocity,
+                    self.configuration.agent_configs[i].max_velocity,
+                ),
                 "theta": self._theta_space,
                 "angle": self._angle_space,
                 "beep": self._beep_space,
                 "color": self._color_space,
             })
-            for _ in range(self.configuration.nb_robots)
+            for i in range(self.configuration.nb_robots)
         ]
         return GymTuple(observation_spaces)
 

@@ -23,25 +23,27 @@
 
 """Tests for the Sapientino Gym environment."""
 import logging
+import time
 from importlib import resources
 from typing import Tuple, cast
 
 import gym
 from gym import spaces
 
+import gym_sapientino.assets
 from gym_sapientino import SapientinoDictSpace, __version__
+from gym_sapientino.core import actions
 from gym_sapientino.core.configurations import (
     SapientinoAgentConfiguration,
     SapientinoConfiguration,
 )
-import gym_sapientino.assets
-from gym_sapientino.wrappers.gym import SingleAgentWrapper
 from gym_sapientino.wrappers import observations
-from gym_sapientino.core import actions
+from gym_sapientino.wrappers.gym import SingleAgentWrapper
 
 NB_ROLLOUT_STEPS = 20
 
 map_str = resources.read_text(gym_sapientino.assets, "map1.txt")
+rendering = False  # NOTE: enable this to see agents move
 
 
 def test_version():
@@ -59,7 +61,6 @@ def sapientino_dict(
         reward_per_step=0.0,
         reward_outside_grid=0.0,
         reward_duplicate_beep=0.0,
-        acceleration=0.1,
     )
     env = SapientinoDictSpace(conf)
     return env
@@ -74,6 +75,9 @@ def rollout(env: gym.Env):
         action = cast(gym.Space, env.action_space).sample()
         ret = env.step(action)
         logging.debug(ret)
+        if rendering:
+            time.sleep(0.2)
+            env.render()
         assert observation_space.contains(ret[0])
 
 
