@@ -27,6 +27,7 @@ from importlib import resources
 from typing import Tuple, cast
 
 import gym
+import pytest
 from gym import spaces
 
 import gym_sapientino.assets
@@ -65,6 +66,29 @@ def sapientino_dict(
     )
     env = SapientinoDictSpace(conf)
     return env
+
+
+@pytest.fixture(autouse=True, scope="session")
+def with_rendering(request):
+    """Return true if not on CI - Pygame rendering not supported."""
+    result = not request.config.getoption("--ci")
+    if not result:
+        logging.info("Skipping rendering, because executing the test on CI.")
+    return result
+
+
+def test_rendering_rollout(with_rendering):
+    """Test rendering of the environment (if allowed)."""
+    agent_conf = SapientinoAgentConfiguration(initial_position=(3, 3))
+    env = sapientino_dict((agent_conf,))
+
+    env.reset()
+    for _ in range(NB_ROLLOUT_STEPS):
+        env.step(env.action_space.sample())
+        if with_rendering:
+            env.render(mode="rgb_array")
+
+    env.close()
 
 
 def rollout(env: gym.Env):
