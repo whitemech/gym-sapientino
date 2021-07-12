@@ -94,10 +94,6 @@ class Colors(Enum):
         """Get the integer representation."""
         return color2int[self]
 
-    @classmethod
-    def from_id(cls) -> "Colors":
-        """Get the color from the ID."""
-
 
 color2int: Dict[Colors, int] = {c: i for i, c in enumerate(list(Colors))}
 id2color: Dict[str, Colors] = {

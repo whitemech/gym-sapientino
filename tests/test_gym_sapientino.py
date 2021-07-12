@@ -54,8 +54,8 @@ def test_version():
 
 
 def sapientino_dict(
-        agents_conf: Tuple[SapientinoAgentConfiguration, ...]
-    ) -> SapientinoDictSpace:
+    agents_conf: Tuple[SapientinoAgentConfiguration, ...]
+) -> SapientinoDictSpace:
     """Create a sapientino instance from agents configurations."""
     conf = SapientinoConfiguration(
         agents_conf,
@@ -85,7 +85,7 @@ def rollout(env: gym.Env):
 
 def test_one():
     """Tests the initialization with one agent."""
-    agent_conf = SapientinoAgentConfiguration(initial_position=(3,3))
+    agent_conf = SapientinoAgentConfiguration(initial_position=(3, 3))
     env = sapientino_dict((agent_conf,))
     rollout(env)
 
@@ -93,8 +93,8 @@ def test_one():
 def test_two():
     """Test with two agents."""
     agents_conf = (
-        SapientinoAgentConfiguration(initial_position=(3,3)),
-        SapientinoAgentConfiguration(initial_position=(3,4)),
+        SapientinoAgentConfiguration(initial_position=(3, 3)),
+        SapientinoAgentConfiguration(initial_position=(3, 4)),
     )
     env = sapientino_dict(agents_conf)
     rollout(env)
@@ -103,7 +103,7 @@ def test_two():
 def test_single_agent():
     """Test a simplified observation space for one agent only."""
     env = sapientino_dict(
-        agents_conf=(SapientinoAgentConfiguration(initial_position=(3,3)),)
+        agents_conf=(SapientinoAgentConfiguration(initial_position=(3, 3)),)
     )
     env = SingleAgentWrapper(env)
     assert isinstance(env.action_space, spaces.Discrete)
@@ -113,10 +113,8 @@ def test_single_agent():
 
 def test_discrete_default():
     """Test the discrete action space (default)."""
-    agent_conf = SapientinoAgentConfiguration(initial_position=(3,3))
-    env = sapientino_dict(
-        agents_conf=(agent_conf,)
-    )
+    agent_conf = SapientinoAgentConfiguration(initial_position=(3, 3))
+    env = sapientino_dict(agents_conf=(agent_conf,))
     assert agent_conf.commands == actions.GridCommand, "Wrong default"
     rollout(env)
 
@@ -124,24 +122,20 @@ def test_discrete_default():
 def test_discrete_differential():
     """Test the differential command action space."""
     agent_conf = SapientinoAgentConfiguration(
-        initial_position=(3,3),
+        initial_position=(3, 3),
         commands=actions.DifferentialGridCommand,
     )
-    env = sapientino_dict(
-        agents_conf=(agent_conf,)
-    )
+    env = sapientino_dict(agents_conf=(agent_conf,))
     rollout(env)
 
 
 def test_continuous():
     """Test continuous motions."""
     agent_conf = SapientinoAgentConfiguration(
-        initial_position=(3,3),
+        initial_position=(3, 3),
         commands=actions.ContinuousCommand,
     )
-    env = sapientino_dict(
-        agents_conf=(agent_conf,)
-    )
+    env = sapientino_dict(agents_conf=(agent_conf,))
     rollout(env)
 
 
@@ -149,15 +143,15 @@ def test_different_action_spaces():
     """Test agents with different action spaces."""
     agents_conf = (
         SapientinoAgentConfiguration(
-            initial_position=(3,3),
+            initial_position=(3, 3),
             commands=actions.GridCommand,
         ),
         SapientinoAgentConfiguration(
-            initial_position=(3,4),
+            initial_position=(3, 4),
             commands=actions.DifferentialGridCommand,
         ),
         SapientinoAgentConfiguration(
-            initial_position=(3,2),
+            initial_position=(3, 2),
             commands=actions.ContinuousCommand,
         ),
     )
@@ -168,12 +162,10 @@ def test_different_action_spaces():
 def test_discrete_features():
     """Test discrete features."""
     agent_conf = SapientinoAgentConfiguration(
-        initial_position=(3,3),
+        initial_position=(3, 3),
         commands=actions.ContinuousCommand,
     )
-    env = sapientino_dict(
-        agents_conf=(agent_conf,)
-    )
+    env = sapientino_dict(agents_conf=(agent_conf,))
     env = observations.UseFeatures(
         env=env,
         features=[observations.DiscreteFeatures],
@@ -187,12 +179,10 @@ def test_discrete_features():
 def test_differential_features():
     """Test differential features."""
     agent_conf = SapientinoAgentConfiguration(
-        initial_position=(3,3),
+        initial_position=(3, 3),
         commands=actions.ContinuousCommand,
     )
-    env = sapientino_dict(
-        agents_conf=(agent_conf,)
-    )
+    env = sapientino_dict(agents_conf=(agent_conf,))
     env = observations.UseFeatures(
         env=env,
         features=[observations.DiscreteAngleFeatures],
@@ -206,12 +196,10 @@ def test_differential_features():
 def test_continuous_features():
     """Test continuous features."""
     agent_conf = SapientinoAgentConfiguration(
-        initial_position=(3,3),
+        initial_position=(3, 3),
         commands=actions.ContinuousCommand,
     )
-    env = sapientino_dict(
-        agents_conf=(agent_conf,)
-    )
+    env = sapientino_dict(agents_conf=(agent_conf,))
     env = observations.UseFeatures(
         env=env,
         features=[observations.ContinuousFeatures],
@@ -226,15 +214,15 @@ def test_all_features():
     """Test all features."""
     agents_conf = (
         SapientinoAgentConfiguration(
-            initial_position=(3,3),
+            initial_position=(3, 3),
             commands=actions.GridCommand,
         ),
         SapientinoAgentConfiguration(
-            initial_position=(3,4),
+            initial_position=(3, 4),
             commands=actions.DifferentialGridCommand,
         ),
         SapientinoAgentConfiguration(
-            initial_position=(3,2),
+            initial_position=(3, 2),
             commands=actions.ContinuousCommand,
         ),
     )
@@ -267,20 +255,8 @@ class Differential45Command(Command):
     def step(self, robot: Robot) -> Robot:
         """Move a robot according to the command."""
         sin, cos = robot.direction.sincos()
-        dx = (
-            1
-            if cos > 0.1
-            else -1
-            if cos < -0.1
-            else 0
-        )
-        dy = (
-            -1
-            if sin > 0.1
-            else 1
-            if sin < -0.1
-            else 0
-        )
+        dx = 1 if cos > 0.1 else -1 if cos < -0.1 else 0
+        dy = -1 if sin > 0.1 else 1 if sin < -0.1 else 0
         x, y = robot.x, robot.y
         direction = robot.direction
         if self == self.LEFT:
@@ -305,16 +281,17 @@ class Differential45Command(Command):
         """Get the "Beep" action."""
         return Differential45Command.BEEP
 
+
 def test_45_deg():
     """Test action space of 45 degrees."""
     agents_conf = (
         SapientinoAgentConfiguration(
-            initial_position=(3,3),
+            initial_position=(3, 3),
             commands=Differential45Command,
             angle_parts=8,
         ),
         SapientinoAgentConfiguration(
-            initial_position=(3,4),
+            initial_position=(3, 4),
             commands=actions.DifferentialGridCommand,
             angle_parts=4,
         ),

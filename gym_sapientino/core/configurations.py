@@ -22,17 +22,17 @@
 
 """Classes for the environment configurations."""
 from dataclasses import dataclass
+from importlib import resources
 from typing import Sequence, Tuple, Type
 
 from gym.spaces import Discrete
 from gym.spaces import Tuple as GymTuple
 
 import gym_sapientino.assets as assets
-from importlib import resources
 from gym_sapientino.core.actions import Command, GridCommand
+from gym_sapientino.core.constants import DEFAULT_MAP_NAME
 from gym_sapientino.core.grid import SapientinoGrid, from_map
 from gym_sapientino.core.types import color2int
-from gym_sapientino.core.constants import DEFAULT_MAP_NAME
 
 
 @dataclass(frozen=True)
@@ -116,11 +116,6 @@ class SapientinoConfiguration:
         """Get the action space of the robots."""
         spaces = tuple(Discrete(ac.action_space.n) for ac in self.agent_configs)
         return GymTuple(spaces)
-
-    @property
-    def nb_theta(self):
-        """Get the number of orientations."""
-        return 4
 
     @property
     def nb_colors(self):

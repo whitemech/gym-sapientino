@@ -225,9 +225,13 @@ class ContinuousCommand(Command):
             return Robot(robot.config, x, y, 0.0, direction.theta, robot.id)
 
     @staticmethod
-    def clip_velocity(velocity: float, robot_config: "SapientinoAgentConfiguration") -> float:
+    def clip_velocity(
+        velocity: float, robot_config: "SapientinoAgentConfiguration"
+    ) -> float:
         """Clip velocity."""
-        return float(np.clip(velocity, robot_config.min_velocity, robot_config.max_velocity))
+        return float(
+            np.clip(velocity, robot_config.min_velocity, robot_config.max_velocity)
+        )
 
     @staticmethod
     def nop() -> "ContinuousCommand":

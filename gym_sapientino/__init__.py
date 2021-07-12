@@ -26,9 +26,8 @@ __version__ = "0.2.1"
 
 import gym
 
-from .wrappers import SapientinoDictSpace
 from .core import actions
-from .wrappers import observations
+from .wrappers import SapientinoDictSpace, observations
 
 gym.register(
     "Sapientino-v0",

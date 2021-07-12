@@ -28,6 +28,7 @@ import numpy as np
 from gym import spaces
 
 
+# TODO: maybe prefer numpy functions for encode decode
 def encode(obs: List[int], spaces: List[int]) -> int:
     """
     Encode an observation from a list of gym.Discrete spaces in one number.

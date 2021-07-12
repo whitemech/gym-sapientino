@@ -2,7 +2,7 @@
 
 SapientinoDictSpace is the most generic class, which returns all
 the information in form of a dictionary. Features classes define an observation
-space and extract information accordingly. 
+space and extract information accordingly.
 """
 
 from abc import ABC, abstractmethod
@@ -12,7 +12,8 @@ import gym
 import numpy as np
 from gym import spaces
 
-from gym_sapientino import SapientinoDictSpace, utils
+from gym_sapientino import utils
+from gym_sapientino.wrappers.dict_space import SapientinoDictSpace
 
 DictSpace = Dict[str, Any]
 
@@ -61,20 +62,19 @@ class UseFeatures(gym.ObservationWrapper):
         # Check
         if len(features) != env.configuration.nb_robots:
             raise ValueError(
-                f"Wrong number of features: expected {env.configuration.nb_robots}")
+                f"Wrong number of features: expected {env.configuration.nb_robots}"
+            )
 
         # Store
         super().__init__(env)
         self.features = [
-            features[i](env.observation_space[i])
-            for i in range(len(features))
+            features[i](env.observation_space[i]) for i in range(len(features))
         ]
 
         # Obs space
-        self.observation_space = spaces.Tuple([
-            self.features[i].compute_space()
-            for i in range(len(features))
-        ])
+        self.observation_space = spaces.Tuple(
+            [self.features[i].compute_space() for i in range(len(features))]
+        )
 
     def observation(self, observation):
         """Compute an observation with features."""
@@ -100,11 +100,14 @@ class DiscreteFeatures(Features):
 
     def compute_observation(self, observation: DictSpace) -> Any:
         """Transform according to observation space."""
-        new_state = np.array([
-            observation["discrete_x"],
-            observation["discrete_y"],
-            observation["beep"],
-        ], dtype=int)
+        new_state = np.array(
+            [
+                observation["discrete_x"],
+                observation["discrete_y"],
+                observation["beep"],
+            ],
+            dtype=int,
+        )
         return new_state
 
 
@@ -124,12 +127,15 @@ class DiscreteAngleFeatures(Features):
 
     def compute_observation(self, observation: DictSpace) -> Any:
         """Transform according to observation space."""
-        new_state = np.array([
-            observation["discrete_x"],
-            observation["discrete_y"],
-            observation["theta"],
-            observation["beep"],
-        ], dtype=int)
+        new_state = np.array(
+            [
+                observation["discrete_x"],
+                observation["discrete_y"],
+                observation["theta"],
+                observation["beep"],
+            ],
+            dtype=int,
+        )
         return new_state
 
 

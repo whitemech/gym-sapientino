@@ -34,7 +34,7 @@ from gym_sapientino.rendering.pygame import PygameRenderer
 
 
 class Sapientino(gym.Env, ABC):
-    """The Sapientino Gym environment.i
+    """The Sapientino Gym environment.
 
     Subclasses must define an observation_space.
     """
