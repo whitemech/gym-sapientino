@@ -75,6 +75,7 @@ class SapientinoDictSpace(Sapientino):
                 "beep": self._beep_space,
                 "color": self._color_space,
             })
+            for _ in range(self.configuration.nb_robots)
         ]
         return GymTuple(observation_spaces)
 

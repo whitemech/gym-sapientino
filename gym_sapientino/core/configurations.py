@@ -22,17 +22,18 @@
 
 """Classes for the environment configurations."""
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Sequence, Tuple, Type
 
 import numpy as np
 from gym.spaces import Discrete, MultiDiscrete
 from gym.spaces import Tuple as GymTuple
 
+import gym_sapientino.assets as assets
+from importlib import resources
 from gym_sapientino.core.actions import Command, GridCommand
-from gym_sapientino.core.constants import ASSETS_DIR, DEFAULT_MAP_FILENAME
 from gym_sapientino.core.grid import SapientinoGrid, from_map
 from gym_sapientino.core.types import color2int
+from gym_sapientino.core.constants import DEFAULT_MAP_NAME
 
 
 @dataclass(frozen=True)
@@ -63,7 +64,7 @@ class SapientinoConfiguration:
 
     # game configurations
     agent_configs: Tuple[SapientinoAgentConfiguration, ...]
-    path_to_map: Path = ASSETS_DIR / DEFAULT_MAP_FILENAME
+    grid_map: str = resources.read_text(assets, DEFAULT_MAP_NAME)
     reward_outside_grid: float = -1.0
     reward_duplicate_beep: float = -1.0
     reward_per_step: float = -0.01
@@ -78,9 +79,7 @@ class SapientinoConfiguration:
 
         Load the map.
         """
-        # accept string for path_to_map
-        object.__setattr__(self, "path_to_map", Path(self.path_to_map))
-        grid = from_map(self.path_to_map)
+        grid = from_map(self.grid_map)
         object.__setattr__(self, "_grid", grid)
 
     @property

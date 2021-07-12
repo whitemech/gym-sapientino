@@ -27,17 +27,17 @@ from importlib import resources
 from typing import Tuple, cast
 
 import gym
-import pytest
 
 from gym_sapientino import SapientinoDictSpace, __version__
 from gym_sapientino.core.configurations import (
     SapientinoAgentConfiguration,
     SapientinoConfiguration,
 )
+import gym_sapientino.assets
 
 NB_ROLLOUT_STEPS = 20
 
-map_resource = resources.path("gym_sapientino.assets", "map1.txt")
+map_str = resources.read_text(gym_sapientino.assets, "map1.txt")
 
 
 def test_version():
@@ -45,65 +45,53 @@ def test_version():
     assert __version__ == "0.2.1"
 
 
-@pytest.fixture(autouse=True, scope="session")
-def with_rendering(request):
-    """Return true if not on CI - Pygame rendering not supported."""
-    result = not request.config.getoption("--ci")
-    if not result:
-        logging.info("Skipping rendering, because executing the test on CI.")
-    return result
-
-
-def test_rollout(with_rendering):
-    """Test instantiation of the environment."""
-    agent_config = SapientinoAgentConfiguration(initial_position=(4,4))
-    env = SapientinoDictSpace(agent_configs=(agent_config,))
-
-    env.reset()
-    for _ in range(NB_ROLLOUT_STEPS):
-        env.step(env.action_space.sample())
-        if with_rendering:
-            env.render(mode="rgb_array")
-
-    env.close()
-
-
 def sapientino_dict(
-        agents_conf: Tuple[SapientinoAgentConfiguration]
+        agents_conf: Tuple[SapientinoAgentConfiguration, ...]
     ) -> SapientinoDictSpace:
     """Create a sapientino instance from agents configurations."""
-    with map_resource as map_path:
-        conf = SapientinoConfiguration(
-            agents_conf,
-            path_to_map=map_path,
-            reward_per_step=0.0,
-            reward_outside_grid=0.0,
-            reward_duplicate_beep=0.0,
-            acceleration=0.1,
-        )
-        env = SapientinoDictSpace(conf)
+    conf = SapientinoConfiguration(
+        agents_conf,
+        grid_map=map_str,
+        reward_per_step=0.0,
+        reward_outside_grid=0.0,
+        reward_duplicate_beep=0.0,
+        acceleration=0.1,
+    )
+    env = SapientinoDictSpace(conf)
     return env
 
 
 def rollout(env: gym.Env):
     """Perform rollout."""
+    observation_space = cast(gym.Space, env.observation_space)
+    logging.debug(observation_space)
     env.reset()
     for _ in range(NB_ROLLOUT_STEPS):
         action = cast(gym.Space, env.action_space).sample()
         ret = env.step(action)
         logging.debug(ret)
+        assert observation_space.contains(ret[0])
 
 
 def test_one():
-    """Tests the initializtion with one agent."""
+    """Tests the initialization with one agent."""
     agent_conf = SapientinoAgentConfiguration(initial_position=(3,3))
     env = sapientino_dict((agent_conf,))
     rollout(env)
 
 
-# TODO
+def test_two():
+    """Test with two agents."""
+    agents_conf = (
+        SapientinoAgentConfiguration(initial_position=(3,3)),
+        SapientinoAgentConfiguration(initial_position=(3,4)),
+    )
+    env = sapientino_dict(agents_conf)
+    rollout(env)
 
-# Test with two agents
+
+
+# TODO
 
 
 # Test with single agent wrapper

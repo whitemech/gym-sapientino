@@ -24,6 +24,7 @@
 from abc import ABC
 from typing import Dict, List, Sequence, Tuple
 
+import numpy as np
 from numpy import clip
 
 from gym_sapientino.core.actions import Command
@@ -107,11 +108,11 @@ class SapientinoState(ABC):
             {
                 "discrete_x": round(r.x),
                 "discrete_y": round(r.y),
-                "x": r.x,
-                "y": r.y,
-                "velocity": r.velocity,
+                "x": np.array((r.x,), dtype=np.float32),
+                "y": np.array((r.y,), dtype=np.float32),
+                "velocity": np.array((r.velocity,), dtype=np.float32),
                 "theta": r.encoded_theta,
-                "angle": r.direction.theta,
+                "angle": np.array((r.direction.theta,), dtype=np.float32),
                 "beep": int(self.last_commands[i] == self.last_commands[i].beep()),
                 "color": self.current_cells[i].encoded_color,
             }
