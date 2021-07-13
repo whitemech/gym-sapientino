@@ -19,13 +19,4 @@
 # You should have received a copy of the GNU General Public License
 # along with gym-sapientino.  If not, see <https://www.gnu.org/licenses/>.
 #
-
-"""Constants of the game."""
-
-black = [0, 0, 0]
-white = [255, 255, 255]
-grey = [180, 180, 180]
-orange = [180, 100, 20]
-red = [180, 0, 0]
-
-DEFAULT_MAP_NAME = "default_map.txt"
+"""Assets and resources only in this package."""

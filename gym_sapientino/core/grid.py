@@ -21,7 +21,6 @@
 #
 
 """Classes to represent a Sapientino map."""
-from pathlib import Path
 from typing import Dict, Iterator, List
 
 from gym_sapientino.core.types import Colors, color2int, id2color
@@ -55,7 +54,7 @@ class SapientinoGrid:
     def reset(self):
         """Reset the state of the grid."""
         self.color_count: Dict[Colors, int] = {}
-        self.counts = [[0] * self.columns for _ in range(self.columns)]
+        self.counts = [[0] * self.columns for _ in range(self.rows)]
 
     def get_bip_counts(self, c: Cell):
         """Get counts."""
@@ -68,13 +67,11 @@ class SapientinoGrid:
     @property
     def rows(self):
         """Get the number of rows."""
-        # TODO allow different number of rows and columns.
         return len(self.cells)
 
     @property
     def columns(self):
         """Get the number of columns."""
-        # TODO allow different number of rows and columns.
         return len(self.cells[0])
 
     def iter_cells(self) -> Iterator[Cell]:
@@ -91,14 +88,15 @@ def _from_character_to_color(char: str) -> Colors:
     return id2color[char]
 
 
-def from_map(path_to_map: Path) -> SapientinoGrid:
+def from_map(map_str: str) -> SapientinoGrid:
     """
     Get a grid from a map.
 
-    The function expects the path to point to a text file of ASCII characters.
+    The function expects a string representation of a map.
     Each rows of characters correspond to a row of cells in the grid of the environment.
     The allowed characters are:
     - ' ', the empty cell;
+    - '#', a wall;
     - 'r', a cell with color red;
     - 'g', a cell with color green;
     - 'b', a cell with color blue;
@@ -121,7 +119,7 @@ def from_map(path_to_map: Path) -> SapientinoGrid:
       |rP Bg b|
 
     """
-    content = path_to_map.read_text(encoding="ascii").replace("|", "")
+    content = map_str.replace("|", "")
     cells_str = content.splitlines(keepends=False)
     assert len(cells_str) > 0, "No row found."
     assert len(cells_str[0]) > 0, "No column found."

@@ -22,19 +22,15 @@
 
 """Objects of the game."""
 
-from typing import Tuple
+from typing import TYPE_CHECKING, Tuple
 
 import numpy as np
 
-from gym_sapientino.core.configurations import SapientinoConfiguration
-from gym_sapientino.core.types import (
-    COMMAND_TYPES,
-    ContinuousCommand,
-    DifferentialCommand,
-    Direction,
-    NormalCommand,
-)
-from gym_sapientino.utils import set_to_zero_if_small
+from gym_sapientino.core.types import Colors, Direction
+
+if TYPE_CHECKING:
+    from gym_sapientino.core.actions import Command
+    from gym_sapientino.core.configurations import SapientinoConfiguration
 
 
 class Robot:
@@ -42,7 +38,7 @@ class Robot:
 
     def __init__(
         self,
-        config: SapientinoConfiguration,
+        config: "SapientinoConfiguration",
         x: float,
         y: float,
         velocity: float,
@@ -51,6 +47,7 @@ class Robot:
     ):
         """Initialize the robot."""
         self.config = config
+        self.robot_config = config.agent_configs[id_]
         self._id = id_
         self.x = x
         self.y = y
@@ -95,73 +92,22 @@ class Robot:
             self.config, new_x, new_y, self.velocity, self.direction.theta, self.id
         )
 
-    def step(self, command: COMMAND_TYPES) -> "Robot":
+    def step(self, command: "Command") -> "Robot":
         """Compute the next location."""
-        if isinstance(command, NormalCommand):
-            return self._step_normal(command)
-        elif isinstance(command, DifferentialCommand):
-            return self._step_differential(command)
-        elif isinstance(command, ContinuousCommand):
-            return self._step_continuous(command)
-        else:
-            raise ValueError("Command not recognized.")
-
-    def _step_normal(self, command: NormalCommand) -> "Robot":
-        x, y = self.x, self.y
-        if command == command.DOWN:
-            y += 1
-        elif command == command.UP:
-            y -= 1
-        elif command == command.RIGHT:
-            x += 1
-        elif command == command.LEFT:
-            x -= 1
-        return Robot(self.config, x, y, self.velocity, self.direction.theta, self.id)
-
-    def _step_differential(self, command: DifferentialCommand) -> "Robot":
-        dx = (
-            1 if self.direction.theta == 0 else -1 if self.direction.theta == 180 else 0
-        )
-        dy = (
-            -1
-            if self.direction.theta == 90
-            else +1
-            if self.direction.theta == 270
-            else 0
-        )
-        x, y = self.x, self.y
-        direction = self.direction
-        if command == command.LEFT:
-            direction = direction.rotate_90_left()
-        elif command == command.RIGHT:
-            direction = direction.rotate_90_right()
-        elif command == command.FORWARD:
-            x += dx
-            y += dy
-        elif command == command.BACKWARD:
-            x -= dx
-            y -= dy
-        return Robot(self.config, x, y, self.velocity, direction.theta, self.id)
-
-    def _step_continuous(self, command: ContinuousCommand) -> "Robot":
-        velocity = self.velocity
-        direction = self.direction
-        x, y = self.x, self.y
-        if command in {command.LEFT, command.RIGHT}:
-            sign = 1.0 if command == command.LEFT else -1.0
-            delta_theta = sign * self.config.angular_speed
-            direction = self.direction.rotate(delta_theta)
-        elif command in {command.FORWARD, command.BACKWARD}:
-            sign = -1.0 if command == command.BACKWARD else 1.0
-            velocity += sign * self.config.acceleration
-            velocity = set_to_zero_if_small(velocity)
-
-        velocity = self.config.clip_velocity(velocity)
-        r = Robot(self.config, x, y, velocity, direction.theta, self.id)
-        return r.apply_velocity()
+        return command.step(self)
 
     @property
     def encoded_theta(self) -> int:
         """Encode the theta."""
-        theta_integer = int(self.direction.theta)
-        return theta_integer // 90
+        angle_step = 360 / self.robot_config.angle_parts
+        return int(self.direction.theta / angle_step)
+
+    def _on_wall(self) -> bool:
+        """Check if the coordinate correspond to a wall or outside the map."""
+        x, y = self.discrete_x, self.discrete_y
+        if x < 0 or x >= self.config.rows:
+            return True
+        if y < 0 or y >= self.config.columns:
+            return True
+        cell = self.config.grid.cells[y][x]
+        return cell.color == Colors.WALL

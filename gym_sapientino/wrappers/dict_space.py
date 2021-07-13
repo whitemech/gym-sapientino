@@ -22,10 +22,14 @@
 
 """Sapientino environments using a "dict" state space."""
 import sys
+from typing import Optional
 
-import gym
-from gym.spaces import Box, Dict, Discrete
+from gym.spaces import Box
+from gym.spaces import Dict as GymDict
+from gym.spaces import Discrete
+from gym.spaces import Tuple as GymTuple
 
+from gym_sapientino.core.configurations import SapientinoConfiguration
 from gym_sapientino.core.states import SapientinoState
 from gym_sapientino.sapientino_env import Sapientino
 
@@ -42,46 +46,50 @@ class SapientinoDictSpace(Sapientino):
     - The color of the current cell (Discrete)
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(
+        self,
+        configuration: Optional[SapientinoConfiguration] = None,
+        *args,
+        **kwargs,
+    ):
         """Initialize the dictionary space."""
-        super().__init__(*args, **kwargs)
+        super().__init__(configuration=configuration, *args, **kwargs)  # type: ignore
 
         self._discrete_x_space = Discrete(self.configuration.columns)
         self._discrete_y_space = Discrete(self.configuration.rows)
         self._x_space = Box(0.0, self.configuration.columns, shape=[1])
         self._y_space = Box(0.0, self.configuration.rows, shape=[1])
-        self._velocity_space = Box(
-            -self.configuration.max_velocity, self.configuration.max_velocity, shape=[1]
-        )
-        self._theta_space = Discrete(self.configuration.nb_theta)
+        self._velocity_space = lambda m, M: Box(m, M, shape=[1])
+        self._theta_space = lambda n: Discrete(n)
         self._angle_space = Box(0.0, 360.0 - sys.float_info.epsilon, shape=[1])
         self._beep_space = Discrete(2)
         self._color_space = Discrete(self.configuration.nb_colors)
 
     @property
-    def observation_space(self) -> gym.spaces.Tuple:
+    def observation_space(self) -> GymTuple:
         """Get the observation space."""
-
-        def get_agent_dict_space(i: int):
-            agent_config = self.configuration.agent_configs[i]
-            d = {
-                "discrete_x": self._discrete_x_space,
-                "discrete_y": self._discrete_y_space,
-                "x": self._x_space,
-                "y": self._y_space,
-                "velocity": self._velocity_space,
-                "theta": self._theta_space,
-                "angle": self._angle_space,
-                "beep": self._beep_space,
-                "color": self._color_space,
-            }
-            if agent_config.differential:
-                d["theta"] = self._theta_space
-            return Dict(d)
-
-        return gym.spaces.Tuple(
-            tuple(map(get_agent_dict_space, range(self.configuration.nb_robots)))
-        )
+        observation_spaces = [
+            GymDict(
+                {
+                    "discrete_x": self._discrete_x_space,
+                    "discrete_y": self._discrete_y_space,
+                    "x": self._x_space,
+                    "y": self._y_space,
+                    "velocity": self._velocity_space(
+                        self.configuration.agent_configs[i].min_velocity,
+                        self.configuration.agent_configs[i].max_velocity,
+                    ),
+                    "theta": self._theta_space(
+                        self.configuration.agent_configs[i].angle_parts,
+                    ),
+                    "angle": self._angle_space,
+                    "beep": self._beep_space,
+                    "color": self._color_space,
+                }
+            )
+            for i in range(self.configuration.nb_robots)
+        ]
+        return GymTuple(observation_spaces)
 
     def observe(self, state: SapientinoState):
         """Observe the state."""

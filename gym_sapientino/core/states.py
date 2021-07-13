@@ -21,16 +21,17 @@
 #
 
 """State representiations for different Sapientino game."""
-import math
 from abc import ABC
 from typing import Dict, List, Sequence, Tuple
 
+import numpy as np
 from numpy import clip
 
+from gym_sapientino.core.actions import Command
 from gym_sapientino.core.configurations import SapientinoConfiguration
 from gym_sapientino.core.grid import Cell, SapientinoGrid
 from gym_sapientino.core.objects import Robot
-from gym_sapientino.core.types import COMMAND_TYPES, Colors
+from gym_sapientino.core.types import Colors
 
 
 class SapientinoState(ABC):
@@ -44,10 +45,11 @@ class SapientinoState(ABC):
         self._grid = self.config.grid
         self._grid.reset()
         self._robots: List[Robot] = [
-            Robot(config, 1 + 2 * i, 2, 0.0, 90.0, i) for i in range(config.nb_robots)
+            Robot(config, c.initial_position[0], c.initial_position[1], 0.0, 90.0, i)
+            for i, c in enumerate(self.config.agent_configs)
         ]
-        self._last_commands: List[COMMAND_TYPES] = [
-            ac.action_type.NOP for ac in self.config.agent_configs
+        self._last_commands: List[Command] = [
+            ac.commands.nop() for ac in self.config.agent_configs
         ]
 
     @property
@@ -60,12 +62,12 @@ class SapientinoState(ABC):
         """Get the list of robots."""
         return tuple(self._robots)
 
-    def step(self, commands: Sequence[COMMAND_TYPES]) -> float:
+    def step(self, commands: Sequence[Command]) -> float:
         """Do a step."""
         assert len(commands) == len(self.robots), "Some commands are missing."
         total_reward = 0.0
 
-        next_robots = [r.step(c) for c, r in zip(commands, self.robots)]
+        next_robots = [c.step(r) for c, r in zip(commands, self.robots)]
         self._last_commands = list(commands)
 
         for i in range(len(next_robots)):
@@ -96,7 +98,7 @@ class SapientinoState(ABC):
         return result
 
     @property
-    def last_commands(self) -> Sequence[COMMAND_TYPES]:
+    def last_commands(self) -> Sequence[Command]:
         """Get the list of last commands."""
         return self._last_commands
 
@@ -104,14 +106,14 @@ class SapientinoState(ABC):
         """Encode into a dictionary."""
         return tuple(
             {
-                "discrete_x": math.floor(r.x),
-                "discrete_y": math.floor(r.y),
-                "x": r.x,
-                "y": r.y,
-                "velocity": r.velocity,
+                "discrete_x": round(r.x),
+                "discrete_y": round(r.y),
+                "x": np.array((r.x,), dtype=np.float32),
+                "y": np.array((r.y,), dtype=np.float32),
+                "velocity": np.array((r.velocity,), dtype=np.float32),
                 "theta": r.encoded_theta,
-                "angle": r.direction.theta,
-                "beep": int(self.last_commands[i] == self.last_commands[i].BEEP),
+                "angle": np.array((r.direction.theta,), dtype=np.float32),
+                "beep": int(self.last_commands[i] == self.last_commands[i].beep()),
                 "color": self.current_cells[i].encoded_color,
             }
             for i, r in enumerate(self.robots)
@@ -130,9 +132,9 @@ class SapientinoState(ABC):
             r.velocity = 0.0
         return reward, r.move(x, y)
 
-    def _do_beep(self, robot: Robot, command: COMMAND_TYPES) -> float:
+    def _do_beep(self, robot: Robot, command: Command) -> float:
         reward = 0.0
-        if command == command.BEEP:
+        if command == command.beep():
             cell = self.grid.cells[robot.discrete_y][robot.discrete_x]
             self.grid.do_beep(cell)
             if cell.color != Colors.BLANK:
