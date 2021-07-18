@@ -105,9 +105,9 @@ class Robot:
     def _on_wall(self) -> bool:
         """Check if the coordinate correspond to a wall or outside the map."""
         x, y = self.discrete_x, self.discrete_y
-        if x < 0 or x >= self.config.rows:
+        if x < 0 or x >= self.config.columns:
             return True
-        if y < 0 or y >= self.config.columns:
+        if y < 0 or y >= self.config.rows:
             return True
         cell = self.config.grid.cells[y][x]
         return cell.color == Colors.WALL
