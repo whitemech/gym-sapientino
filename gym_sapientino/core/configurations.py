@@ -75,6 +75,7 @@ class SapientinoConfiguration:
     reward_outside_grid: float = -1.0
     reward_duplicate_beep: float = -1.0
     reward_per_step: float = -0.01
+    storage = {}
 
     def __post_init__(self):
         """
