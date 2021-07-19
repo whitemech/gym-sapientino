@@ -54,6 +54,7 @@ class SapientinoAgentConfiguration:
     max_velocity: float = 0.20
     min_velocity: float = -0.10
     angle_parts: int = 4
+    storage = {}
 
     @property
     def action_space(self) -> Discrete:
@@ -75,7 +76,6 @@ class SapientinoConfiguration:
     reward_outside_grid: float = -1.0
     reward_duplicate_beep: float = -1.0
     reward_per_step: float = -0.01
-    storage = {}
 
     def __post_init__(self):
         """
