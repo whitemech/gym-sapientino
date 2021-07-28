@@ -73,6 +73,7 @@ class UseFeatures(gym.ObservationWrapper):
 
     The feature classes of this module define the observation space for one
     agent only. Use this class to apply one feature space for each robot.
+    It also remember last unprocessed tuple of features.
     """
 
     def __init__(self, env: SapientinoDictSpace, features: Sequence[Type[Features]]):
@@ -97,9 +98,12 @@ class UseFeatures(gym.ObservationWrapper):
             [self.features[i].compute_space() for i in range(len(features))]
         )
 
+        self.last_dict_observation = None
+
     def observation(self, observation):
         """Compute an observation with features."""
         assert len(observation) == len(self.features)
+        self.last_dict_observation = observation
         return [
             self.features[i].compute_observation(observation[i])
             for i in range(len(observation))
