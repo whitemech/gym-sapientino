@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gym_sapientino"
-version = "0.2.2"
+version = "0.3.0"
 description = "Gym Sapientino environment using Pygame."
 authors = [
 	"Marco Favorito <favorito@diag.uniroma1.it>",
