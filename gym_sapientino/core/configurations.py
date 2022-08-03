@@ -23,7 +23,7 @@
 """Classes for the environment configurations."""
 from dataclasses import dataclass
 from importlib import resources
-from typing import Any, Dict, Sequence, Tuple, Type
+from typing import Sequence, Tuple, Type
 
 from gym.spaces import Discrete
 from gym.spaces import Tuple as GymTuple
@@ -54,7 +54,6 @@ class SapientinoAgentConfiguration:
     max_velocity: float = 0.20
     min_velocity: float = -0.10
     angle_parts: int = 4
-    storage: Dict[str, Any] = {}
 
     @property
     def action_space(self) -> Discrete:
