@@ -27,7 +27,7 @@ space and extract information accordingly.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Sequence, Type
+from typing import Any, Dict, Sequence, Type, cast
 
 import gym
 import numpy as np
@@ -98,12 +98,10 @@ class UseFeatures(gym.ObservationWrapper):
             [self.features[i].compute_space() for i in range(len(features))]
         )
 
-        self.last_dict_observation = None
-
     def observation(self, observation):
         """Compute an observation with features."""
         assert len(observation) == len(self.features)
-        self.last_dict_observation = observation
+        self.last_dict_observation = cast(Sequence[Any], observation)
         return [
             self.features[i].compute_observation(observation[i])
             for i in range(len(observation))
