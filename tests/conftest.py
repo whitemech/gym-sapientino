@@ -20,12 +20,9 @@
 # along with gym-sapientino.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-"""Constants of the game."""
+"""Conftest module."""
 
-black = [0, 0, 0]
-white = [255, 255, 255]
-grey = [180, 180, 180]
-orange = [180, 100, 20]
-red = [180, 0, 0]
 
-DEFAULT_MAP_NAME = "default_map.txt"
+def pytest_addoption(parser):
+    """Add options to pytest parser."""
+    parser.addoption("--ci", action="store_true", default=False, help="Run on CI.")

@@ -25,7 +25,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
 
-import gym as gym
+import gym
 
 from gym_sapientino.core.configurations import SapientinoConfiguration
 from gym_sapientino.core.states import SapientinoState, make_state
@@ -34,14 +34,29 @@ from gym_sapientino.rendering.pygame import PygameRenderer
 
 
 class Sapientino(gym.Env, ABC):
-    """The Sapientino Gym environment."""
+    """The Sapientino Gym environment.
+
+    Subclasses must define an observation_space.
+    """
 
     metadata = {"render.modes": ["human", "rgb_array"]}
 
-    def __init__(self, configuration: Optional[SapientinoConfiguration] = None):
-        """Initialize the environment."""
+    def __init__(
+        self, configuration: Optional[SapientinoConfiguration] = None, *args, **kwargs
+    ):
+        """
+        Initialize the environment.
+
+        :param configuration: the configuration object.
+        :param args: positional arguments to the configuration object.
+          They are ignored if the configuration is provided.
+        :param kwargs: keyword arguments to the configuration object.
+          They are ignored if the configuration is provided.
+        """
         self.configuration = (
-            configuration if configuration is not None else SapientinoConfiguration()
+            configuration
+            if configuration is not None
+            else SapientinoConfiguration(*args, **kwargs)
         )
         self.state = make_state(self.configuration)
         self.viewer: Optional[Renderer] = None
@@ -50,11 +65,6 @@ class Sapientino(gym.Env, ABC):
     def action_space(self) -> gym.Space:
         """Get the action space."""
         return self.configuration.action_space
-
-    @property
-    def observation_space(self) -> gym.Space:
-        """Get the observation space."""
-        return self.configuration.observation_space
 
     def step(self, action: Any):
         """Execute an action."""

@@ -22,11 +22,12 @@
 
 """The 'Sapientino' OpenAI Gym Environment."""
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 import gym
 
-from .wrappers import SapientinoDictSpace
+from .core import actions
+from .wrappers import SapientinoDictSpace, observations
 
 gym.register(
     "Sapientino-v0",
