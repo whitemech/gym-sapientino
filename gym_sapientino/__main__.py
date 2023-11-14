@@ -25,8 +25,6 @@
 
 import argparse
 
-from gym.wrappers import Monitor
-
 from gym_sapientino import play
 from gym_sapientino.core.configurations import SapientinoAgentConfiguration
 from gym_sapientino.play import FrameCapture
@@ -57,7 +55,6 @@ if __name__ == "__main__":
     if args.frames:
         env = FrameCapture("frames", env)
     if args.record:
-        env = Monitor(env, "recordings", force=True)
-        env.metadata["video.frames_per_second"] = 2  # type: ignore
+        raise NotImplementedError("Recordings changed in new gymnasium. Not implemented yet")
 
     play.play(env)

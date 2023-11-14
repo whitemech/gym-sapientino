@@ -23,71 +23,76 @@
 """Sapientino environment with OpenAI Gym interface."""
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional
+from typing import Optional, override
 
-import gym
+from gymnasium import Env, Space
 
 from gym_sapientino.core.configurations import SapientinoConfiguration
 from gym_sapientino.core.states import SapientinoState, make_state
-from gym_sapientino.rendering.base import Renderer
 from gym_sapientino.rendering.pygame import PygameRenderer
 
 
-class Sapientino(gym.Env, ABC):
+class Sapientino(Env, ABC):
     """The Sapientino Gym environment.
 
     Subclasses must define an observation_space.
     """
 
-    metadata = {"render.modes": ["human", "rgb_array"]}
+    metadata = {"render_modes": ["human", "rgb_array"]}
 
     def __init__(
-        self, configuration: Optional[SapientinoConfiguration] = None, *args, **kwargs
+        self,
+        configuration: Optional[SapientinoConfiguration] = None,
+        render_mode: Optional[str] = None,
+        *args, **kwargs
     ):
         """
         Initialize the environment.
 
         :param configuration: the configuration object.
-        :param args: positional arguments to the configuration object.
-          They are ignored if the configuration is provided.
-        :param kwargs: keyword arguments to the configuration object.
-          They are ignored if the configuration is provided.
+        :param render_mode: see metadata["render_modes"]. If None, rendering is off (default).
         """
         self.configuration = (
             configuration
             if configuration is not None
             else SapientinoConfiguration(*args, **kwargs)
         )
+        self.render_mode = render_mode
         self.state = make_state(self.configuration)
-        self.viewer: Optional[Renderer] = None
+        self.viewer = PygameRenderer(self.state) if render_mode else None
 
     @property
-    def action_space(self) -> gym.Space:
+    def action_space(self) -> Space:
         """Get the action space."""
         return self.configuration.action_space
 
-    def step(self, action: Any):
+    @override
+    def step(self, action):
         """Execute an action."""
         command = self.configuration.get_action(action)
         reward = self.state.step(command)
         obs = self.observe(self.state)
         is_finished = self.state.is_finished
-        info: Dict = {}
-        return obs, reward, is_finished, info
+        if self.render_mode == "human":
+            self.render()
+        return obs, reward, is_finished, False, {}
 
     def reset(self):
         """Reset the environment."""
         self.state = make_state(self.configuration)
-        if self.viewer is not None:
-            self.viewer.reset(self.state)
-        return self.observe(self.state)
-
-    def render(self, mode="human") -> None:
-        """Render the environment."""
         if self.viewer is None:
             self.viewer = PygameRenderer(self.state)
+        self.viewer.reset(self.state)
+        if self.render_mode == "human":
+            self.render()
+        return self.observe(self.state), {}
 
-        return self.viewer.render(mode=mode)
+    def render(self):
+        """Render the environment."""
+        if not self.render_mode:
+            return
+        assert self.viewer is not None
+        return self.viewer.render(mode=self.render_mode)
 
     def close(self) -> None:
         """Close the environment."""
@@ -95,7 +100,7 @@ class Sapientino(gym.Env, ABC):
             self.viewer.close()
 
     @abstractmethod
-    def observe(self, state: SapientinoState) -> gym.Space:
+    def observe(self, state: SapientinoState) -> Space:
         """
         Extract observation from the state of the game.
 

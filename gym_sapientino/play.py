@@ -24,10 +24,13 @@
 
 import shutil
 from pathlib import Path
+from typing import cast
 
-import gym
+import gymnasium as gym
 import pygame
 from PIL import Image
+
+from .sapientino_env import Sapientino
 
 
 class FrameCapture(gym.Wrapper):
@@ -54,7 +57,8 @@ class FrameCapture(gym.Wrapper):
 
         :return: None
         """
-        rgb_array = self.render(mode="rgb_array")
+        assert self.env.render_mode == "rgb_array"
+        rgb_array = self.render()
         img = Image.fromarray(rgb_array)
         step = self.current_episode_step
         episode = self.current_episode
@@ -80,9 +84,8 @@ class FrameCapture(gym.Wrapper):
 def play(env: gym.Env) -> None:
     """Play interactively with the environment."""
     print("Press 'Q' to quit.")
-    assert env.unwrapped.configuration.nb_robots == 1, "Can only play with one robot."
+    assert cast(Sapientino, env.unwrapped).configuration.nb_robots == 1, "Can only play with one robot."
     env.reset()
-    env.render()
     quitted = False
     while not quitted:
         event = pygame.event.wait()
@@ -102,6 +105,4 @@ def play(env: gym.Env) -> None:
                 cmd = 4
 
             env.step([cmd])
-            env.render()
-    env.render()
     env.close()

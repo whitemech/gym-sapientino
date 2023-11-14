@@ -58,6 +58,8 @@ ipython = "^8.17.2"
 notebook = "^7.0.6"
 flake8 = "^6.1.0"
 mkdocs = "^1.5.3"
+ruff-lsp = "^0.0.45"
+pyright = "^1.1.335"
 
 [build-system]
 requires = ["poetry-core"]

@@ -23,10 +23,9 @@
 """Classes for the environment configurations."""
 from dataclasses import dataclass
 from importlib import resources
-from typing import Sequence, Tuple, Type
+from typing import Sequence, Type
 
-from gym.spaces import Discrete
-from gym.spaces import Tuple as GymTuple
+from gymnasium.spaces import Discrete, Tuple
 
 import gym_sapientino.assets as assets
 from gym_sapientino.core.actions import Command, GridCommand
@@ -47,7 +46,7 @@ class SapientinoAgentConfiguration:
     creates one unit per each 90°).
     """
 
-    initial_position: Tuple[float, float]
+    initial_position: tuple[float, float]
     commands: Type[Command] = GridCommand
     angular_speed: float = 20.0
     acceleration: float = 0.02
@@ -70,7 +69,7 @@ class SapientinoConfiguration:
     """A class to represent Sapientino configurations."""
 
     # game configurations
-    agent_configs: Tuple[SapientinoAgentConfiguration, ...]
+    agent_configs: tuple[SapientinoAgentConfiguration, ...]
     grid_map: str = resources.read_text(assets, DEFAULT_MAP_NAME)
     reward_outside_grid: float = -1.0
     reward_duplicate_beep: float = -1.0
@@ -112,10 +111,10 @@ class SapientinoConfiguration:
         return self.agent_configs[0]
 
     @property
-    def action_space(self) -> GymTuple:
+    def action_space(self) -> Tuple:
         """Get the action space of the robots."""
         spaces = tuple(Discrete(ac.action_space.n) for ac in self.agent_configs)
-        return GymTuple(spaces)
+        return Tuple(spaces)
 
     @property
     def nb_colors(self):

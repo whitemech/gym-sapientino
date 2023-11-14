@@ -1,5 +1,10 @@
 # History
 
+## 0.4.0 (2023-11-10)
+
+* Updated from gym to gymnasium
+* Many other package updates
+
 ## 0.2.0 (2020-10-11)
 
 * Add support for a multi-agent scenario

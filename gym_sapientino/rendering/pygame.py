@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with gym-sapientino.  If not, see <https://www.gnu.org/licenses/>.
 #
+# TODO: rendering changed
 
 """Pygame-based rendering."""
 from typing import Any, Callable, Dict, Type

@@ -22,14 +22,13 @@
 
 """This module contains utility functions."""
 from functools import reduce
-from typing import List
 
 import numpy as np
-from gym import spaces
+from gymnasium import spaces
 
 
 # TODO: maybe prefer numpy functions for encode decode
-def encode(obs: List[int], spaces: List[int]) -> int:
+def encode(obs: list[int], spaces: list[int]) -> int:
     """
     Encode an observation from a list of gym.Discrete spaces in one number.
 
@@ -48,7 +47,7 @@ def encode(obs: List[int], spaces: List[int]) -> int:
     return result
 
 
-def decode(obs: int, spaces: List[int]) -> List[int]:
+def decode(obs: int, spaces: list[int]) -> list[int]:
     """
     Decode an observation from a list of gym.Discrete spaces in a list of integers.
 

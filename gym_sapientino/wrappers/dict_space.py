@@ -24,10 +24,7 @@
 import sys
 from typing import Optional
 
-from gym.spaces import Box
-from gym.spaces import Dict as GymDict
-from gym.spaces import Discrete
-from gym.spaces import Tuple as GymTuple
+from gymnasium.spaces import Box, Discrete, Dict, Tuple
 
 from gym_sapientino.core.configurations import SapientinoConfiguration
 from gym_sapientino.core.states import SapientinoState
@@ -35,8 +32,7 @@ from gym_sapientino.sapientino_env import Sapientino
 
 
 class SapientinoDictSpace(Sapientino):
-    """
-    A Sapientino environment with a dictionary state space.
+    """A Sapientino environment with a dictionary state space.
 
     The components of the space are:
     - Robot x coordinate (Discrete)
@@ -53,7 +49,7 @@ class SapientinoDictSpace(Sapientino):
         **kwargs,
     ):
         """Initialize the dictionary space."""
-        super().__init__(configuration=configuration, *args, **kwargs)  # type: ignore
+        super().__init__(configuration=configuration, *args, **kwargs)
 
         self._discrete_x_space = Discrete(self.configuration.columns)
         self._discrete_y_space = Discrete(self.configuration.rows)
@@ -66,10 +62,10 @@ class SapientinoDictSpace(Sapientino):
         self._color_space = Discrete(self.configuration.nb_colors)
 
     @property
-    def observation_space(self) -> GymTuple:
+    def observation_space(self):
         """Get the observation space."""
         observation_spaces = [
-            GymDict(
+            Dict(
                 {
                     "discrete_x": self._discrete_x_space,
                     "discrete_y": self._discrete_y_space,
@@ -89,7 +85,7 @@ class SapientinoDictSpace(Sapientino):
             )
             for i in range(self.configuration.nb_robots)
         ]
-        return GymTuple(observation_spaces)
+        return Tuple(observation_spaces)
 
     def observe(self, state: SapientinoState):
         """Observe the state."""

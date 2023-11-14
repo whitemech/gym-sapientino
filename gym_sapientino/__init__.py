@@ -24,7 +24,7 @@
 
 __version__ = "0.2.1"
 
-import gym
+import gymnasium as gym
 
 from .core import actions
 from .wrappers import SapientinoDictSpace, observations
