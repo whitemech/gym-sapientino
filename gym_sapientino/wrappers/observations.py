@@ -29,8 +29,8 @@ space and extract information accordingly.
 from abc import ABC, abstractmethod
 from typing import Any, Sequence, Type, cast
 
-from gymnasium import ObservationWrapper, spaces, Space
 import numpy as np
+from gymnasium import ObservationWrapper, Space, spaces
 
 from gym_sapientino import utils
 from gym_sapientino.wrappers.dict_space import SapientinoDictSpace

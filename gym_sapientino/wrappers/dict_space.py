@@ -24,7 +24,7 @@
 import sys
 from typing import Optional
 
-from gymnasium.spaces import Box, Discrete, Dict, Tuple
+from gymnasium.spaces import Box, Dict, Discrete, Tuple
 
 from gym_sapientino.core.configurations import SapientinoConfiguration
 from gym_sapientino.core.states import SapientinoState

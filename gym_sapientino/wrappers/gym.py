@@ -21,8 +21,8 @@
 #
 """Useful gym wrappers."""
 
-from gymnasium.spaces import Tuple
 from gymnasium import Wrapper
+from gymnasium.spaces import Tuple
 
 
 class SingleAgentWrapper(Wrapper):
