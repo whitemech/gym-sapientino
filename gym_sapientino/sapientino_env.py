@@ -23,7 +23,7 @@
 """Sapientino environment with OpenAI Gym interface."""
 
 from abc import ABC, abstractmethod
-from typing import Optional, override
+from typing import Optional
 
 from gymnasium import Env, Space
 
@@ -61,13 +61,8 @@ class Sapientino(Env, ABC):
         self.render_mode = render_mode
         self.state = make_state(self.configuration)
         self.viewer = PygameRenderer(self.state) if render_mode else None
+        self.action_space = self.configuration.action_space
 
-    @property
-    def action_space(self) -> Space:
-        """Get the action space."""
-        return self.configuration.action_space
-
-    @override
     def step(self, action):
         """Execute an action."""
         command = self.configuration.get_action(action)

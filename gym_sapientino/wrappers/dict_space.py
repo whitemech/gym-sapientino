@@ -49,7 +49,7 @@ class SapientinoDictSpace(Sapientino):
         **kwargs,
     ):
         """Initialize the dictionary space."""
-        super().__init__(configuration=configuration, *args, **kwargs)
+        super().__init__(configuration=configuration, *args, **kwargs)  # type: ignore
 
         self._discrete_x_space = Discrete(self.configuration.columns)
         self._discrete_y_space = Discrete(self.configuration.rows)

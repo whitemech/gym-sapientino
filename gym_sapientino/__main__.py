@@ -25,6 +25,8 @@
 
 import argparse
 
+from gymnasium import Env
+
 from gym_sapientino import play
 from gym_sapientino.core.configurations import SapientinoAgentConfiguration
 from gym_sapientino.play import FrameCapture
@@ -51,7 +53,7 @@ if __name__ == "__main__":
     args = parse_arguments()
     c = SapientinoAgentConfiguration(args.differential, args.continuous)
     agent_configs = (c,)
-    env = SapientinoDictSpace(SapientinoConfiguration(agent_configs))
+    env: Env = SapientinoDictSpace(SapientinoConfiguration(agent_configs))
     if args.frames:
         env = FrameCapture("frames", env)
     if args.record:

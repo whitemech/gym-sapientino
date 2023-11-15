@@ -21,7 +21,6 @@
 #
 
 """State representiations for different Sapientino game."""
-from abc import ABC
 from typing import Dict, List, Sequence, Tuple
 
 import numpy as np
@@ -34,7 +33,7 @@ from gym_sapientino.core.objects import Robot
 from gym_sapientino.core.types import Colors
 
 
-class SapientinoState(ABC):
+class SapientinoState:
     """Abstract class to represent a Sapientino state."""
 
     def __init__(self, config: "SapientinoConfiguration"):

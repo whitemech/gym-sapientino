@@ -28,6 +28,7 @@ from typing import cast
 
 import gymnasium as gym
 import pygame
+from numpy.typing import ArrayLike
 from PIL import Image
 
 from .sapientino_env import Sapientino
@@ -59,7 +60,7 @@ class FrameCapture(gym.Wrapper):
         """
         if self.env.render_mode != "rgb_array":
             raise NotImplementedError("Only rgb_array is supported")
-        rgb_array = self.render()
+        rgb_array = cast(ArrayLike, self.render())
         img = Image.fromarray(rgb_array)
         step = self.current_episode_step
         episode = self.current_episode

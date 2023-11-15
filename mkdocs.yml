@@ -12,8 +12,6 @@ nav:
 
 
 plugins:
-- mkdocs-jupyter:
-    execute: false
 - search
 
 theme:
