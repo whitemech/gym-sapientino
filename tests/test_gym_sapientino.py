@@ -22,13 +22,13 @@
 
 """Tests for the Sapientino Gym environment."""
 import logging
-import time
 from importlib import resources
 from typing import Tuple, cast
 
-import gym
+import gymnasium as gym
+import numpy as np
 import pytest
-from gym import spaces
+from gymnasium import spaces
 
 import gym_sapientino.assets
 from gym_sapientino import SapientinoDictSpace, __version__
@@ -50,11 +50,12 @@ rendering = False  # NOTE: enable this to see agents move
 
 def test_version():
     """Test version."""
-    assert __version__ == "0.2.1"
+    assert __version__ == "0.4.0"
 
 
 def sapientino_dict(
-    agents_conf: Tuple[SapientinoAgentConfiguration, ...]
+    agents_conf: Tuple[SapientinoAgentConfiguration, ...],
+    **kwargs,
 ) -> SapientinoDictSpace:
     """Create a sapientino instance from agents configurations."""
     conf = SapientinoConfiguration(
@@ -64,7 +65,7 @@ def sapientino_dict(
         reward_outside_grid=0.0,
         reward_duplicate_beep=0.0,
     )
-    env = SapientinoDictSpace(conf)
+    env = SapientinoDictSpace(conf, **kwargs)
     return env
 
 
@@ -80,13 +81,13 @@ def with_rendering(request):
 def test_rendering_rollout(with_rendering):
     """Test rendering of the environment (if allowed)."""
     agent_conf = SapientinoAgentConfiguration(initial_position=(3, 3))
-    env = sapientino_dict((agent_conf,))
+    env = sapientino_dict((agent_conf,), render_mode="rgb_array")
 
     env.reset()
     for _ in range(NB_ROLLOUT_STEPS):
         env.step(env.action_space.sample())
-        if with_rendering:
-            env.render(mode="rgb_array")
+        out = env.render()
+        assert isinstance(out, np.ndarray)
 
     env.close()
 
@@ -100,9 +101,6 @@ def rollout(env: gym.Env):
         action = cast(gym.Space, env.action_space).sample()
         ret = env.step(action)
         logging.debug(ret)
-        if rendering:
-            time.sleep(0.2)
-            env.render()
         assert observation_space.contains(ret[0])
 
 

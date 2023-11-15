@@ -22,6 +22,7 @@
 
 """Sapientino environment with OpenAI Gym interface."""
 
+import random
 from abc import ABC, abstractmethod
 from typing import Optional
 
@@ -73,8 +74,10 @@ class Sapientino(Env, ABC):
             self.render()
         return obs, reward, is_finished, False, {}
 
-    def reset(self):
+    def reset(self, seed=None, options=None):
         """Reset the environment."""
+        if seed:
+            self.rng = random.Random(seed)
         self.state = make_state(self.configuration)
         if self.viewer is not None:
             self.viewer.reset(self.state)
