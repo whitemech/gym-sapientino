@@ -44,7 +44,8 @@ class Sapientino(Env, ABC):
         self,
         configuration: Optional[SapientinoConfiguration] = None,
         render_mode: Optional[str] = None,
-        *args, **kwargs
+        *args,
+        **kwargs
     ):
         """
         Initialize the environment.

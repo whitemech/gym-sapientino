@@ -101,7 +101,9 @@ class UseFeatures(ObservationWrapper):
     def observation(self, observation):
         """Compute an observation with features."""
         if len(observation) != len(self.features):
-            raise RuntimeError("Wrong observation length. Expected " + str(len(self.features)))
+            raise RuntimeError(
+                "Wrong observation length. Expected " + str(len(self.features))
+            )
         self.last_dict_observation = cast(Sequence[Any], observation)
         return [
             self.features[i].compute_observation(observation[i])
@@ -120,7 +122,9 @@ class DiscreteFeatures(Features):
         x_space = cast(spaces.Discrete, self.dict_space.spaces["discrete_x"])
         y_space = cast(spaces.Discrete, self.dict_space.spaces["discrete_y"])
         beep_space = cast(spaces.Discrete, self.dict_space.spaces["beep"])
-        return spaces.MultiDiscrete([x_space.n.item(), y_space.n.item(), beep_space.n.item()])
+        return spaces.MultiDiscrete(
+            [x_space.n.item(), y_space.n.item(), beep_space.n.item()]
+        )
 
     def compute_observation(self, observation: DictObs):
         """Transform according to observation space."""
@@ -147,7 +151,14 @@ class DiscreteAngleFeatures(Features):
         y_space = cast(spaces.Discrete, self.dict_space.spaces["discrete_y"])
         theta_space = cast(spaces.Discrete, self.dict_space.spaces["theta"])
         beep_space = cast(spaces.Discrete, self.dict_space.spaces["beep"])
-        return spaces.MultiDiscrete([x_space.n.item(), y_space.n.item(), theta_space.n.item(), beep_space.n.item()])
+        return spaces.MultiDiscrete(
+            [
+                x_space.n.item(),
+                y_space.n.item(),
+                theta_space.n.item(),
+                beep_space.n.item(),
+            ]
+        )
 
     def compute_observation(self, observation: DictObs):
         """Transform according to observation space."""

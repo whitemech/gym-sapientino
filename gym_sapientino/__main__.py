@@ -55,6 +55,8 @@ if __name__ == "__main__":
     if args.frames:
         env = FrameCapture("frames", env)
     if args.record:
-        raise NotImplementedError("Recordings changed in new gymnasium. Not implemented yet")
+        raise NotImplementedError(
+            "Recordings changed in new gymnasium. Not implemented yet"
+        )
 
     play.play(env)
