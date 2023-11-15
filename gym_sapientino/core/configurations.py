@@ -107,7 +107,8 @@ class SapientinoConfiguration:
     @property
     def agent_config(self) -> "SapientinoAgentConfiguration":
         """Get the agent configuration."""
-        assert self.nb_robots == 1, "Can be called only in single-agent mode."
+        if self.nb_robots != 1:
+            raise ValueError("Can be called only in single-agent mode.")
         return self.agent_configs[0]
 
     @property

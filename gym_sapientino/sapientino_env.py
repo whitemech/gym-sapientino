@@ -80,10 +80,8 @@ class Sapientino(Env, ABC):
     def reset(self):
         """Reset the environment."""
         self.state = make_state(self.configuration)
-        if self.viewer is None:
-            self.viewer = PygameRenderer(self.state)
-        self.viewer.reset(self.state)
-        if self.render_mode == "human":
+        if self.viewer is not None:
+            self.viewer.reset(self.state)
             self.render()
         return self.observe(self.state), {}
 
@@ -91,7 +89,8 @@ class Sapientino(Env, ABC):
         """Render the environment."""
         if not self.render_mode:
             return
-        assert self.viewer is not None
+        if self.viewer is None:
+            self.viewer = PygameRenderer(self.state)
         return self.viewer.render(mode=self.render_mode)
 
     def close(self) -> None:

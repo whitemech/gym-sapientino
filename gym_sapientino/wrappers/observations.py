@@ -100,7 +100,8 @@ class UseFeatures(ObservationWrapper):
 
     def observation(self, observation):
         """Compute an observation with features."""
-        assert len(observation) == len(self.features)
+        if len(observation) != len(self.features):
+            raise RuntimeError("Wrong observation length. Expected " + str(len(self.features)))
         self.last_dict_observation = cast(Sequence[Any], observation)
         return [
             self.features[i].compute_observation(observation[i])

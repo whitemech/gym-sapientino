@@ -44,10 +44,10 @@ class SingleAgentWrapper(Wrapper):
 
     def _transform_tuple_space(self, space):
         """Transform a Tuple space with one element into that element."""
-        assert isinstance(
-            space, Tuple
-        ), "The space is not an instance of gym.spaces.tuples.Tuple."
-        assert len(space.spaces) == 1, "The tuple space has more than one subspaces."
+        if not isinstance(space, Tuple):
+            raise TypeError("The space is not an instance of gym.spaces.tuples.Tuple.")
+        if len(space.spaces) != 1:
+            raise ValueError("The tuple space has more than one subspaces.")
         return space.spaces[0]
 
     def step(self, action):

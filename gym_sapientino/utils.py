@@ -36,7 +36,8 @@ def encode(obs: list[int], spaces: list[int]) -> int:
     :param spaces: the list of gym.Discrete spaces from where the observation is observed.
     :return: the encoded observation.
     """
-    assert len(obs) == len(spaces)
+    if len(obs) != len(spaces):
+        raise ValueError("Wrong input length")
     sizes = spaces
     result = obs[0]
     shift = sizes[0]
@@ -83,7 +84,8 @@ def combine_boxes(*boxes: spaces.Box) -> spaces.Box:
     Output type is np.float32.
     """
     # Unidimensional spaces
-    assert all(len(space.shape) == 1 for space in boxes)
+    if not all(len(space.shape) == 1 for space in boxes):
+        raise ValueError("Unexpected shape")
 
     # Concat
     lows = np.concatenate([space.low for space in boxes])

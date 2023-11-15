@@ -83,8 +83,8 @@ class SapientinoGrid:
 
 def _from_character_to_color(char: str) -> Colors:
     """From character to cell."""
-    assert len(char) == 1, "only single character are accepted."
-    assert char in id2color, f"character not supported: '{char}'"
+    if len(char) != 1:
+        raise ValueError("only single character are accepted.")
     return id2color[char]
 
 
@@ -121,14 +121,17 @@ def from_map(map_str: str) -> SapientinoGrid:
     """
     content = map_str.replace("|", "")
     cells_str = content.splitlines(keepends=False)
-    assert len(cells_str) > 0, "No row found."
-    assert len(cells_str[0]) > 0, "No column found."
+    if len(cells_str) <= 0:
+        raise ValueError("No row found.")
+    if len(cells_str[0]) <= 0:
+        raise ValueError("No column found.")
     nb_rows, nb_columns = len(cells_str), len(cells_str[0])
     cells = []
     for i in range(nb_rows):
         row = []
         for j in range(nb_columns):
-            assert len(cells_str[i]) == nb_columns, "Got rows of different size"
+            if len(cells_str[i]) != nb_columns:
+                raise ValueError("Got rows of different size")
             cell = cells_str[i][j]
             color = _from_character_to_color(cell)
             row.append(Cell(j, i, color))

@@ -64,7 +64,8 @@ class SapientinoState(ABC):
 
     def step(self, commands: Sequence[Command]) -> float:
         """Do a step."""
-        assert len(commands) == len(self.robots), "Some commands are missing."
+        if len(commands) != len(self.robots):
+            raise ValueError("Some commands are missing.")
         total_reward = 0.0
 
         next_robots = [c.step(r) for c, r in zip(commands, self.robots)]

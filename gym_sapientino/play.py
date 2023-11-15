@@ -57,7 +57,8 @@ class FrameCapture(gym.Wrapper):
 
         :return: None
         """
-        assert self.env.render_mode == "rgb_array"
+        if self.env.render_mode != "rgb_array":
+            raise NotImplementedError("Only rgb_array is supported")
         rgb_array = self.render()
         img = Image.fromarray(rgb_array)
         step = self.current_episode_step
@@ -84,7 +85,8 @@ class FrameCapture(gym.Wrapper):
 def play(env: gym.Env) -> None:
     """Play interactively with the environment."""
     print("Press 'Q' to quit.")
-    assert cast(Sapientino, env.unwrapped).configuration.nb_robots == 1, "Can only play with one robot."
+    if cast(Sapientino, env.unwrapped).configuration.nb_robots != 1:
+        raise ValueError("Can only play with one robot.")
     env.reset()
     quitted = False
     while not quitted:
