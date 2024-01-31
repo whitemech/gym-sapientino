@@ -27,10 +27,11 @@ __version__ = "0.4.0"
 import gymnasium as gym
 
 from .core import actions
-from .wrappers import Sapientino, observations
+from .sapientino_env import Sapientino
+from .wrappers import observations
 
 gym.register(
-    "Sapientino-v0",
-    entry_point="gym_sapientino:SapientinoDictSpace",
+    "Sapientino-v1",
+    entry_point="gym_sapientino:Sapientino",
     max_episode_steps=100,
 )

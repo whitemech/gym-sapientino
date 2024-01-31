@@ -21,8 +21,9 @@
 #
 """Definitions of observations spaces.
 
-SapientinoDictSpace is the most generic class, which returns all
-the information in form of a dictionary. Features classes define an observation
+Sapientino is the most generic class, which returns all
+the information in form of a dictionary.
+The features classes in this module define a specific observation
 space and extract information accordingly.
 """
 
@@ -33,7 +34,7 @@ import numpy as np
 from gymnasium import ObservationWrapper, Space, spaces
 
 from gym_sapientino import utils
-from gym_sapientino.wrappers.dict_space import Sapientino
+from gym_sapientino import Sapientino
 
 DictObs = dict[str, Any]
 
@@ -42,9 +43,9 @@ class Features(ABC):
     """Base class for all observation spaces.
 
     By subclassing from this class, we can define any observation space
-    computed over SapientinoDictSpace.
+    computed over Sapientino.
     The member "dict_state" stores last observation received from
-    SapientinoDictSpace. UseFeatures is a wrapper useful to apply features
+    Sapientino. UseFeatures is a wrapper useful to apply features
     to the environment.
     """
 

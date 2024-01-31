@@ -31,7 +31,7 @@ from gym_sapientino import play
 from gym_sapientino.core.configurations import SapientinoAgentConfiguration
 from gym_sapientino.play import FrameCapture
 from gym_sapientino.sapientino_env import SapientinoConfiguration
-from gym_sapientino.wrappers.dict_space import Sapientino
+from gym_sapientino import Sapientino
 
 
 def parse_arguments():
