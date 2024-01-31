@@ -22,4 +22,4 @@
 
 """This package contains wrappers for the Sapientino environment."""
 
-from .dict_space import SapientinoDictSpace  # noqa
+from .dict_space import Sapientino  # noqa

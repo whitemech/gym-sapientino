@@ -31,7 +31,7 @@ import pygame
 from numpy.typing import ArrayLike
 from PIL import Image
 
-from .sapientino_env import Sapientino
+from .sapientino_env import SapientinoBase
 
 
 class FrameCapture(gym.Wrapper):
@@ -86,7 +86,7 @@ class FrameCapture(gym.Wrapper):
 def play(env: gym.Env) -> None:
     """Play interactively with the environment."""
     print("Press 'Q' to quit.")
-    if cast(Sapientino, env.unwrapped).configuration.nb_robots != 1:
+    if cast(SapientinoBase, env.unwrapped).configuration.nb_robots != 1:
         raise ValueError("Can only play with one robot.")
     env.reset()
     quitted = False

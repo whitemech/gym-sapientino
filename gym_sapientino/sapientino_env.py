@@ -33,8 +33,8 @@ from gym_sapientino.core.states import SapientinoState, make_state
 from gym_sapientino.rendering.pygame import PygameRenderer
 
 
-class Sapientino(Env, ABC):
-    """The Sapientino Gym environment.
+class SapientinoBase(Env, ABC):
+    """The base class for the sapientino Gym environment.
 
     Subclasses must define an observation_space.
     """

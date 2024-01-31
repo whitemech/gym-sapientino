@@ -23,7 +23,7 @@
 """Tests for the Sapientino Gym environment."""
 import logging
 from importlib import resources
-from typing import Tuple, cast
+from typing import  Tuple, cast
 
 import gymnasium as gym
 import numpy as np
@@ -31,7 +31,7 @@ import pytest
 from gymnasium import spaces
 
 import gym_sapientino.assets
-from gym_sapientino import SapientinoDictSpace, __version__
+from gym_sapientino import Sapientino, __version__
 from gym_sapientino.core import actions
 from gym_sapientino.core.actions import Command
 from gym_sapientino.core.configurations import (
@@ -56,7 +56,7 @@ def test_version():
 def sapientino_dict(
     agents_conf: Tuple[SapientinoAgentConfiguration, ...],
     **kwargs,
-) -> SapientinoDictSpace:
+) -> Sapientino:
     """Create a sapientino instance from agents configurations."""
     conf = SapientinoConfiguration(
         agents_conf,
@@ -65,7 +65,7 @@ def sapientino_dict(
         reward_outside_grid=0.0,
         reward_duplicate_beep=0.0,
     )
-    env = SapientinoDictSpace(conf, **kwargs)
+    env = Sapientino(conf, **kwargs)
     return env
 
 

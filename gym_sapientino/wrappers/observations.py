@@ -33,7 +33,7 @@ import numpy as np
 from gymnasium import ObservationWrapper, Space, spaces
 
 from gym_sapientino import utils
-from gym_sapientino.wrappers.dict_space import SapientinoDictSpace
+from gym_sapientino.wrappers.dict_space import Sapientino
 
 DictObs = dict[str, Any]
 
@@ -75,7 +75,7 @@ class UseFeatures(ObservationWrapper):
     It also remember last unprocessed tuple of features.
     """
 
-    def __init__(self, env: SapientinoDictSpace, features: Sequence[Type[Features]]):
+    def __init__(self, env: Sapientino, features: Sequence[Type[Features]]):
         """Initialize.
 
         :param features: one feature for each robot.
