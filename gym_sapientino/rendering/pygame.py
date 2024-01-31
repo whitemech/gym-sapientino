@@ -81,7 +81,7 @@ class PygameRenderer(Renderer):
         """Get the window height."""
         return self.size_square * self.config.rows + self.offy + (self.offy // 2)
 
-    def render(self, mode="human") -> None:
+    def render(self, mode="human"):
         """Render."""
         self._fill_screen()
         self._draw_score_label()

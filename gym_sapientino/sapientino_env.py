@@ -48,7 +48,7 @@ class SapientinoBase(Env, ABC):
         configuration: Optional[SapientinoConfiguration] = None,
         render_mode: Optional[str] = None,
         *args,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the environment.
@@ -79,7 +79,7 @@ class SapientinoBase(Env, ABC):
     def reset(self, *, seed=None, options=None):
         """Reset the environment."""
         if seed:
-            self.rng = random.Random(seed)
+            self.rng = random.Random(seed)  # nosec
         self.state = make_state(self.configuration)
         if self.viewer is not None:
             self.viewer.reset(self.state)
@@ -136,11 +136,10 @@ class Sapientino(SapientinoBase):
     def __init__(
         self,
         configuration: Optional[SapientinoConfiguration] = None,
-        *args,
         **kwargs,
     ):
         """Initialize the dictionary space."""
-        super().__init__(configuration=configuration, *args, **kwargs)  # type: ignore
+        super().__init__(configuration=configuration, **kwargs)  # type: ignore
 
         self._discrete_x_space = Discrete(self.configuration.columns)
         self._discrete_y_space = Discrete(self.configuration.rows)
@@ -152,27 +151,29 @@ class Sapientino(SapientinoBase):
         self._beep_space = Discrete(2)
         self._color_space = Discrete(self.configuration.nb_colors)
 
-        self.observation_space = Tuple([
-            Dict(
-                {
-                    "discrete_x": self._discrete_x_space,
-                    "discrete_y": self._discrete_y_space,
-                    "x": self._x_space,
-                    "y": self._y_space,
-                    "velocity": self._velocity_space(
-                        self.configuration.agent_configs[i].min_velocity,
-                        self.configuration.agent_configs[i].max_velocity,
-                    ),
-                    "theta": self._theta_space(
-                        self.configuration.agent_configs[i].angle_parts,
-                    ),
-                    "angle": self._angle_space,
-                    "beep": self._beep_space,
-                    "color": self._color_space,
-                }
-            )
-            for i in range(self.configuration.nb_robots)
-        ])
+        self.observation_space = Tuple(
+            [
+                Dict(
+                    {
+                        "discrete_x": self._discrete_x_space,
+                        "discrete_y": self._discrete_y_space,
+                        "x": self._x_space,
+                        "y": self._y_space,
+                        "velocity": self._velocity_space(
+                            self.configuration.agent_configs[i].min_velocity,
+                            self.configuration.agent_configs[i].max_velocity,
+                        ),
+                        "theta": self._theta_space(
+                            self.configuration.agent_configs[i].angle_parts,
+                        ),
+                        "angle": self._angle_space,
+                        "beep": self._beep_space,
+                        "color": self._color_space,
+                    }
+                )
+                for i in range(self.configuration.nb_robots)
+            ]
+        )
 
     def observe(self, state: SapientinoState):
         """Observe the state."""

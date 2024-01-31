@@ -33,8 +33,7 @@ from typing import Any, Sequence, Type, cast
 import numpy as np
 from gymnasium import ObservationWrapper, Space, spaces
 
-from gym_sapientino import utils
-from gym_sapientino import Sapientino
+from gym_sapientino import Sapientino, utils
 
 DictObs = dict[str, Any]
 
@@ -90,7 +89,7 @@ class UseFeatures(ObservationWrapper):
         # Store
         super().__init__(env)
         self.features = [
-            features[i](cast(spaces.Dict, env.observation_space[i]))
+            features[i](cast(spaces.Dict, cast(spaces.Tuple, env.observation_space)[i]))
             for i in range(len(features))
         ]
 

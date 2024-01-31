@@ -21,4 +21,3 @@
 #
 
 """This package contains wrappers for the Sapientino environment."""
-

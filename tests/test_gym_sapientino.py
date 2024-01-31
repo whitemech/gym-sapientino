@@ -23,7 +23,7 @@
 """Tests for the Sapientino Gym environment."""
 import logging
 from importlib import resources
-from typing import  Tuple, cast
+from typing import Tuple, cast
 
 import gymnasium as gym
 import numpy as np
