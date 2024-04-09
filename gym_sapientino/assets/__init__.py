@@ -19,5 +19,4 @@
 # You should have received a copy of the GNU General Public License
 # along with gym-sapientino.  If not, see <https://www.gnu.org/licenses/>.
 #
-
-"""This package contains wrappers for the Sapientino environment."""
+"""Assets and resources only in this package."""

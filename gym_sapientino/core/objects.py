@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright 2019-2020 Marco Favorito, Luca Iocchi
+# Copyright 2019-2023 Marco Favorito, Roberto Cipollone, Luca Iocchi
 #
 # ------------------------------
 #
@@ -22,33 +22,37 @@
 
 """Objects of the game."""
 
-import itertools
-from typing import Dict, Tuple
+from typing import TYPE_CHECKING, Tuple
 
-from gym_sapientino.core.configurations import SapientinoConfiguration
-from gym_sapientino.core.constants import TOKENS
-from gym_sapientino.core.types import (
-    COMMAND_TYPES,
-    Colors,
-    DifferentialCommand,
-    Direction,
-    NormalCommand,
-    color2int,
-)
+import numpy as np
+
+from gym_sapientino.core.types import Colors, Direction
+
+if TYPE_CHECKING:
+    from gym_sapientino.core.actions import Command
+    from gym_sapientino.core.configurations import SapientinoConfiguration
 
 
 class Robot:
     """A class to represent a robot."""
 
     def __init__(
-        self, config: SapientinoConfiguration, x: int, y: int, th: Direction, id_: int
+        self,
+        config: "SapientinoConfiguration",
+        x: float,
+        y: float,
+        velocity: float,
+        theta: float,
+        id_: int,
     ):
         """Initialize the robot."""
         self.config = config
+        self.robot_config = config.agent_configs[id_]
         self._id = id_
         self.x = x
         self.y = y
-        self.direction = th
+        self.velocity = velocity
+        self.direction = Direction(theta)
 
     @property
     def id(self) -> int:
@@ -56,113 +60,54 @@ class Robot:
         return self._id
 
     @property
-    def position(self) -> Tuple[int, int]:
+    def discrete_x(self) -> int:
+        """Get the discrete x coordinate."""
+        rounded_x = int(np.round(self.x))
+        x = min(rounded_x, self.config.columns - 1)
+        return x
+
+    @property
+    def discrete_y(self) -> int:
+        """Get the discrete y coordinate."""
+        rounded = int(np.round(self.y))
+        y = min(rounded, self.config.rows - 1)
+        return y
+
+    @property
+    def position(self) -> Tuple[float, float]:
         """Get the position."""
         return self.x, self.y
 
-    def move(self, x: int, y: int) -> "Robot":
+    def move(self, x: float, y: float) -> "Robot":
         """Move to a location."""
-        return Robot(self.config, x, y, self.direction, self.id)
+        return Robot(self.config, x, y, self.velocity, self.direction.theta, self.id)
 
-    def step(self, command: COMMAND_TYPES) -> "Robot":
+    def apply_velocity(self) -> "Robot":
+        """Apply the velocity to change position."""
+        new_x, new_y = self.x, self.y
+        sin, cos = self.direction.sincos()
+        new_x += self.velocity * cos
+        new_y += -self.velocity * sin
+        return Robot(
+            self.config, new_x, new_y, self.velocity, self.direction.theta, self.id
+        )
+
+    def step(self, command: "Command") -> "Robot":
         """Compute the next location."""
-        if isinstance(command, NormalCommand):
-            return self._step_normal(command)
-        elif isinstance(command, DifferentialCommand):
-            return self._step_differential(command)
-        else:
-            raise ValueError("Command not recognized.")
-
-    def _step_normal(self, command: NormalCommand) -> "Robot":
-        x, y = self.x, self.y
-        if command == command.DOWN:
-            y -= 1
-        elif command == command.UP:
-            y += 1
-        elif command == command.RIGHT:
-            x += 1
-        elif command == command.LEFT:
-            x -= 1
-        return Robot(self.config, x, y, self.direction, self.id)
-
-    def _step_differential(self, command: DifferentialCommand) -> "Robot":
-        dx = 1 if self.direction.th == 0 else -1 if self.direction.th == 180 else 0
-        dy = 1 if self.direction.th == 90 else -1 if self.direction.th == 270 else 0
-        x, y = self.x, self.y
-        direction = self.direction
-        if command == command.LEFT:
-            direction = direction.rotate_left()
-        elif command == command.RIGHT:
-            direction = direction.rotate_right()
-        elif command == command.FORWARD:
-            x += dx
-            y += dy
-        elif command == command.BACKWARD:
-            x -= dx
-            y -= dy
-        return Robot(self.config, x, y, direction, self.id)
+        return command.step(self)
 
     @property
     def encoded_theta(self) -> int:
         """Encode the theta."""
-        return self.direction.th // 90
+        angle_step = 360 / self.robot_config.angle_parts
+        return int(self.direction.theta / angle_step)
 
-
-class Cell:
-    """A class to represent a cell on the grid."""
-
-    def __init__(self, config: SapientinoConfiguration, x: int, y: int, color: Colors):
-        """Initialize the cell."""
-        self.config = config
-        self.x = x
-        self.y = y
-        self.color = color
-        self.bip_count = 0
-
-    @property
-    def encoded_color(self) -> int:
-        """Encode the color."""
-        return color2int[self.color]
-
-    def beep(self) -> None:
-        """Do a beep."""
-        self.bip_count += 1
-
-
-class BlankCell(Cell):
-    """A blank cell."""
-
-    def __init__(self, config: SapientinoConfiguration, x: int, y: int):
-        """Initialize the blank cell."""
-        super().__init__(config, x, y, Colors.BLANK)
-
-
-class SapientinoGrid:
-    """The grid of the Sapientino environment."""
-
-    def __init__(self, config: SapientinoConfiguration):
-        """Initialize the grid."""
-        self.config = config
-
-        self.rows = config.rows
-        self.columns = config.columns
-
-        self.cells: Dict[Tuple[int, int], Cell] = {}
-        self.color_count: Dict[Colors, int] = {}
-
-        self._populate_token_grid()
-
-    def _populate_token_grid(self):
-        # add color cells
-        for t in TOKENS:
-            x, y = t[2], t[3]
-            color = t[1]
-            color_cell = Cell(self.config, x, y, Colors(color))
-            self.cells[(x, y)] = color_cell
-
-        # add blank cells
-        for x, y in itertools.product(
-            range(self.config.columns), range(self.config.rows)
-        ):
-            if (x, y) not in self.cells:
-                self.cells[(x, y)] = BlankCell(self.config, x, y)
+    def _on_wall(self) -> bool:
+        """Check if the coordinate correspond to a wall or outside the map."""
+        x, y = self.discrete_x, self.discrete_y
+        if x < 0 or x >= self.config.columns:
+            return True
+        if y < 0 or y >= self.config.rows:
+            return True
+        cell = self.config.grid.cells[y][x]
+        return cell.color == Colors.WALL

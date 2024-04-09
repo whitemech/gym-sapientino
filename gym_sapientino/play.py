@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright 2019-2020 Marco Favorito, Luca Iocchi
+# Copyright 2019-2023 Marco Favorito, Roberto Cipollone, Luca Iocchi
 #
 # ------------------------------
 #
@@ -24,10 +24,14 @@
 
 import shutil
 from pathlib import Path
+from typing import cast
 
-import gym
+import gymnasium as gym
 import pygame
+from numpy.typing import ArrayLike
 from PIL import Image
+
+from .sapientino_env import SapientinoBase
 
 
 class FrameCapture(gym.Wrapper):
@@ -54,7 +58,9 @@ class FrameCapture(gym.Wrapper):
 
         :return: None
         """
-        rgb_array = self.render(mode="rgb_array")
+        if self.env.render_mode != "rgb_array":
+            raise NotImplementedError("Only rgb_array is supported")
+        rgb_array = cast(ArrayLike, self.render())
         img = Image.fromarray(rgb_array)
         step = self.current_episode_step
         episode = self.current_episode
@@ -80,9 +86,9 @@ class FrameCapture(gym.Wrapper):
 def play(env: gym.Env) -> None:
     """Play interactively with the environment."""
     print("Press 'Q' to quit.")
-    assert env.unwrapped.configuration.nb_robots == 1, "Can only play with one robot."
+    if cast(SapientinoBase, env.unwrapped).configuration.nb_robots != 1:
+        raise ValueError("Can only play with one robot.")
     env.reset()
-    env.render()
     quitted = False
     while not quitted:
         event = pygame.event.wait()
@@ -102,6 +108,4 @@ def play(env: gym.Env) -> None:
                 cmd = 4
 
             env.step([cmd])
-            env.render()
-    env.render()
     env.close()

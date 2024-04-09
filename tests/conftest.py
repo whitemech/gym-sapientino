@@ -20,4 +20,9 @@
 # along with gym-sapientino.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-"""This package contains wrappers for the Sapientino environment."""
+"""Conftest module."""
+
+
+def pytest_addoption(parser):
+    """Add options to pytest parser."""
+    parser.addoption("--ci", action="store_true", default=False, help="Run on CI.")

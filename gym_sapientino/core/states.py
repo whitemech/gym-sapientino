@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright 2019-2020 Marco Favorito, Luca Iocchi
+# Copyright 2019-2023 Marco Favorito, Roberto Cipollone, Luca Iocchi
 #
 # ------------------------------
 #
@@ -21,24 +21,19 @@
 #
 
 """State representiations for different Sapientino game."""
-
-from abc import ABC
 from typing import Dict, List, Sequence, Tuple
 
+import numpy as np
 from numpy import clip
 
+from gym_sapientino.core.actions import Command
 from gym_sapientino.core.configurations import SapientinoConfiguration
-from gym_sapientino.core.objects import Cell, Robot, SapientinoGrid
-from gym_sapientino.core.types import (
-    COMMAND_TYPES,
-    Colors,
-    DifferentialCommand,
-    Direction,
-    NormalCommand,
-)
+from gym_sapientino.core.grid import Cell, SapientinoGrid
+from gym_sapientino.core.objects import Robot
+from gym_sapientino.core.types import Colors
 
 
-class SapientinoState(ABC):
+class SapientinoState:
     """Abstract class to represent a Sapientino state."""
 
     def __init__(self, config: "SapientinoConfiguration"):
@@ -46,14 +41,14 @@ class SapientinoState(ABC):
         self.config = config
 
         self.score = 0
-        self._grid = SapientinoGrid(config)
+        self._grid = self.config.grid
+        self._grid.reset()
         self._robots: List[Robot] = [
-            Robot(config, 1 + 2 * i, 2, Direction.UP, i)
-            for i in range(config.nb_robots)
+            Robot(config, c.initial_position[0], c.initial_position[1], 0.0, 90.0, i)
+            for i, c in enumerate(self.config.agent_configs)
         ]
-        self._last_commands: List[COMMAND_TYPES] = [
-            NormalCommand.NOP if ac.differential else DifferentialCommand.NOP
-            for ac in self.config.agent_configs
+        self._last_commands: List[Command] = [
+            ac.commands.nop() for ac in self.config.agent_configs
         ]
 
     @property
@@ -66,12 +61,13 @@ class SapientinoState(ABC):
         """Get the list of robots."""
         return tuple(self._robots)
 
-    def step(self, commands: Sequence[COMMAND_TYPES]) -> float:
+    def step(self, commands: Sequence[Command]) -> float:
         """Do a step."""
-        assert len(commands) == len(self.robots), "Some commands are missing."
+        if len(commands) != len(self.robots):
+            raise ValueError("Some commands are missing.")
         total_reward = 0.0
 
-        next_robots = [r.step(c) for c, r in zip(commands, self.robots)]
+        next_robots = [c.step(r) for c, r in zip(commands, self.robots)]
         self._last_commands = list(commands)
 
         for i in range(len(next_robots)):
@@ -96,10 +92,13 @@ class SapientinoState(ABC):
     @property
     def current_cells(self) -> Sequence[Cell]:
         """Get the current cell."""
-        return [self.grid.cells[r.position] for r in self._robots]
+        result = []
+        for r in self._robots:
+            result.append(self.grid.cells[r.discrete_y][r.discrete_x])
+        return result
 
     @property
-    def last_commands(self) -> Sequence[COMMAND_TYPES]:
+    def last_commands(self) -> Sequence[Command]:
         """Get the list of last commands."""
         return self._last_commands
 
@@ -107,10 +106,14 @@ class SapientinoState(ABC):
         """Encode into a dictionary."""
         return tuple(
             {
-                "x": r.x,
-                "y": r.y,
+                "discrete_x": round(r.x),
+                "discrete_y": round(r.y),
+                "x": np.array((r.x,), dtype=np.float32),
+                "y": np.array((r.y,), dtype=np.float32),
+                "velocity": np.array((r.velocity,), dtype=np.float32),
                 "theta": r.encoded_theta,
-                "beep": int(self.last_commands[i] == self.last_commands[i].BEEP),
+                "angle": np.array((r.direction.theta,), dtype=np.float32),
+                "beep": int(self.last_commands[i] == self.last_commands[i].beep()),
                 "color": self.current_cells[i].encoded_color,
             }
             for i, r in enumerate(self.robots)
@@ -119,25 +122,26 @@ class SapientinoState(ABC):
     def _force_border_constraints(self, r: Robot) -> Tuple[float, Robot]:
         reward = 0.0
         x, y = r.x, r.y
-        if not (0 <= r.x < self.config.columns):
+        if not (0 <= r.x < self.config.columns - 1):
             reward += self.config.reward_outside_grid
             x = int(clip(r.x, 0, self.config.columns - 1))
-        if not (0 <= r.y < self.config.rows):
+            r.velocity = 0.0
+        if not (0 <= r.y < self.config.rows - 1):
             reward += self.config.reward_outside_grid
             y = int(clip(r.y, 0, self.config.rows - 1))
+            r.velocity = 0.0
         return reward, r.move(x, y)
 
-    def _do_beep(self, robot: Robot, command: COMMAND_TYPES) -> float:
+    def _do_beep(self, robot: Robot, command: Command) -> float:
         reward = 0.0
-        if command == command.BEEP:
-            position = robot.x, robot.y
-            cell = self.grid.cells[position]
-            cell.beep()
+        if command == command.beep():
+            cell = self.grid.cells[robot.discrete_y][robot.discrete_x]
+            self.grid.do_beep(cell)
             if cell.color != Colors.BLANK:
                 if cell.color not in self.grid.color_count:
                     self.grid.color_count[cell.color] = 0
                 self.grid.color_count[cell.color] += 1
-            if cell.bip_count >= 2:
+            if self.grid.get_bip_counts(cell) >= 2:
                 reward += self.config.reward_duplicate_beep
 
         return reward

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright 2019-2020 Marco Favorito, Luca Iocchi
+# Copyright 2019-2023 Marco Favorito, Roberto Cipollone, Luca Iocchi
 #
 # ------------------------------
 #
@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with gym-sapientino.  If not, see <https://www.gnu.org/licenses/>.
 #
+# TODO: rendering changed
 
 """Pygame-based rendering."""
 from typing import Any, Callable, Dict, Type
@@ -26,7 +27,8 @@ from typing import Any, Callable, Dict, Type
 import pygame
 
 from gym_sapientino.core.constants import white
-from gym_sapientino.core.objects import Cell, Robot, SapientinoGrid
+from gym_sapientino.core.grid import Cell, SapientinoGrid
+from gym_sapientino.core.objects import Robot
 from gym_sapientino.core.states import SapientinoState
 from gym_sapientino.core.types import Colors
 from gym_sapientino.rendering.base import Renderer
@@ -79,7 +81,7 @@ class PygameRenderer(Renderer):
         """Get the window height."""
         return self.size_square * self.config.rows + self.offy + (self.offy // 2)
 
-    def render(self, mode="human") -> None:
+    def render(self, mode="human"):
         """Render."""
         self._fill_screen()
         self._draw_score_label()
@@ -87,6 +89,7 @@ class PygameRenderer(Renderer):
         self._draw_game_objects()
 
         if mode == "human":
+            pygame.event.pump()
             pygame.display.update()
         elif mode == "rgb_array":
             screen = pygame.surfarray.array3d(self._screen)
@@ -107,14 +110,14 @@ class PygameRenderer(Renderer):
 
     def _draw_score_label(self):
         score_label = self.myfont.render(
-            str(self.state.score), 100, pygame.color.THECOLORS["black"]
+            str(self.state.score), True, pygame.color.THECOLORS["black"]
         )
         self._screen.blit(score_label, (20, 10))
 
     def _draw_last_command(self):
         cmds = self.state.last_commands
         s = "".join(f"{str(c)}" for c in cmds)
-        count_label = self.myfont.render(s, 100, pygame.color.THECOLORS["brown"])
+        count_label = self.myfont.render(s, True, pygame.color.THECOLORS["brown"])
         self._screen.blit(count_label, (60, 10))
 
     def _draw_game_objects(self):
@@ -134,7 +137,7 @@ class PygameRenderer(Renderer):
     def _draw_robot(self, r: Robot) -> None:
         """Draw a robot."""
         dx = int(self.offx + r.x * self.size_square)
-        dy = int(self.offy + (self.config.rows - r.y - 1) * self.size_square)
+        dy = int(self.offy + r.y * self.size_square)
         pygame.draw.circle(
             self._screen,
             ROBOT_COLORS[r.id],
@@ -142,21 +145,13 @@ class PygameRenderer(Renderer):
             2 * self.radius,
             0,
         )
-        ox = 0
-        oy = 0
-        if r.direction.th == 0:  # right
-            ox = self.radius
-        elif r.direction.th == 90:  # up
-            oy = -self.radius
-        elif r.direction.th == 180:  # left
-            ox = -self.radius
-        elif r.direction.th == 270:  # down
-            oy = self.radius
+        sin, cos = r.direction.sincos()
+        ox, oy = self.radius * cos, self.radius * sin
 
         pygame.draw.circle(
             self._screen,
             pygame.color.THECOLORS["black"],
-            [dx + self.size_square // 2 + ox, dy + self.size_square // 2 + oy],
+            [dx + self.size_square // 2 + ox, dy + self.size_square // 2 - oy],
             5,
             0,
         )
@@ -181,23 +176,24 @@ class PygameRenderer(Renderer):
                 [self.offx + g.columns * self.size_square, oy],
             )
 
-        for cell in g.cells.values():
-            self._draw_cell(cell)
+        for cell in g.iter_cells():
+            self._draw_cell(cell, g.get_bip_counts(cell))
 
-    def _draw_cell(self, c: Cell) -> None:
+    def _draw_cell(self, c: Cell, counts: int) -> None:
         """Draw a cell."""
         if c.color == Colors.BLANK:
             return
         dx = int(self.offx + c.x * self.size_square)
-        dy = int(self.offy + (self.config.rows - c.y - 1) * self.size_square)
+        dy = int(self.offy + c.y * self.size_square)
         sqsz = (
             dx + 5,
             dy + 5,
             self.size_square - 10,
             self.size_square - 10,
         )
-        pygame.draw.rect(self._screen, pygame.color.THECOLORS[str(c.color)], sqsz)
-        if c.bip_count >= 1:
+        cellcolor = str(c.color) if c.color != Colors.WALL else "black"
+        pygame.draw.rect(self._screen, pygame.color.THECOLORS[cellcolor], sqsz)
+        if counts >= 1:
             pygame.draw.rect(
                 self._screen,
                 pygame.color.THECOLORS["black"],

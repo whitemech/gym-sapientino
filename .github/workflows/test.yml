@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: [3.7, 3.8]
+        python-version: [3.9]
 
     timeout-minutes: 30
 
@@ -27,7 +27,7 @@ jobs:
       run:  pip install tox poetry
     - name: Unit tests and coverage
       run: |
-        tox -e py${{ matrix.python-version }}
+        tox -e py${{ matrix.python-version }} -- --ci
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
       with:

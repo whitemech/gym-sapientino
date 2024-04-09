@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright 2019-2020 Marco Favorito, Luca Iocchi
+# Copyright 2019-2023 Marco Favorito, Roberto Cipollone, Luca Iocchi
 #
 # ------------------------------
 #
@@ -21,114 +21,72 @@
 #
 
 """Define basic types."""
-
+from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, Sequence, Union
+from typing import Dict, Tuple
+
+import numpy as np
+
+from gym_sapientino.utils import set_to_zero_if_small
 
 
-class NormalCommand(Enum):
-    """Enumeration for normal commands."""
+@dataclass
+class Direction:
+    """A class to represent the direction."""
 
-    LEFT = 0
-    UP = 1
-    RIGHT = 2
-    DOWN = 3
-    BEEP = 4
-    NOP = 5
+    theta: float
 
-    def __str__(self) -> str:
-        """Get the string representation."""
-        cmd = NormalCommand(self.value)
-        if cmd == NormalCommand.LEFT:
-            return "<"
-        elif cmd == NormalCommand.RIGHT:
-            return ">"
-        elif cmd == NormalCommand.UP:
-            return "^"
-        elif cmd == NormalCommand.DOWN:
-            return "v"
-        elif cmd == NormalCommand.BEEP:
-            return "o"
-        elif cmd == NormalCommand.NOP:
-            return "_"
-        else:
-            raise ValueError("Shouldn't be here...")
+    def rotate(self, delta_theta: float):
+        """Rotate of a certain amount."""
+        th = self.theta + delta_theta
+        if th < 0:
+            th = 360.0 + th
+        elif th >= 360.0:
+            th = th % 360.0
+        return Direction(th)
 
+    def rotate_left(self, delta_theta: float) -> "Direction":
+        """Rotate left of a certain amount."""
+        if delta_theta < 0.0:
+            raise ValueError("Only positive values are allowed.")
+        return self.rotate(delta_theta)
 
-class DifferentialCommand(Enum):
-    """Enumeration for differential commands."""
-
-    LEFT = 0
-    FORWARD = 1
-    RIGHT = 2
-    BACKWARD = 3
-    BEEP = 4
-    NOP = 5
-
-    def __str__(self) -> str:
-        """Get the string representation."""
-        cmd = DifferentialCommand(self.value)
-        if cmd == DifferentialCommand.LEFT:
-            return "<"
-        elif cmd == DifferentialCommand.RIGHT:
-            return ">"
-        elif cmd == DifferentialCommand.FORWARD:
-            return "^"
-        elif cmd == DifferentialCommand.BACKWARD:
-            return "v"
-        elif cmd == DifferentialCommand.BEEP:
-            return "o"
-        elif cmd == DifferentialCommand.NOP:
-            return "_"
-        else:
-            raise ValueError("Shouldn't be here...")
-
-
-COMMAND_TYPES = Union[NormalCommand, DifferentialCommand]
-
-
-class Direction(Enum):
-    """A class to represent the four directions (up, down, left, right)."""
-
-    RIGHT = 0
-    UP = 90
-    LEFT = 180
-    DOWN = 270
-
-    def rotate_left(self) -> "Direction":
+    def rotate_90_left(self) -> "Direction":
         """Rotate the direction to the left."""
-        th = (self.th + 90) % 360
-        return Direction(th)
+        return self.rotate_left(90.0)
 
-    def rotate_right(self) -> "Direction":
+    def rotate_right(self, delta_theta: float) -> "Direction":
+        """Rotate right of a certain amount."""
+        if delta_theta < 0.0:
+            raise ValueError("Only positive values are allowed.")
+        return self.rotate(-delta_theta)
+
+    def rotate_90_right(self) -> "Direction":
         """Rotate the direction to the right."""
-        th = (self.th - 90) % 360
-        if th == -90:
-            th = 270
-        return Direction(th)
+        return self.rotate_right(90.0)
 
-    @staticmethod
-    def nb_directions() -> int:
-        """Get the number of allowed directions."""
-        return len(Direction)
-
-    @property
-    def th(self):
-        """Get the theta value of the direction."""
-        return self.value
+    def sincos(self) -> Tuple[float, float]:
+        """Return the pair (sin(theta), cos(theta)."""
+        rad_theta = np.deg2rad(self.theta)
+        sin_theta = set_to_zero_if_small(np.sin(rad_theta))
+        cos_theta = set_to_zero_if_small(np.cos(rad_theta))
+        return sin_theta, cos_theta
 
 
 class Colors(Enum):
     """Enumeration for colors."""
 
     BLANK = "blank"
+    WALL = "wall"
     RED = "red"
     GREEN = "green"
     BLUE = "blue"
+    YELLOW = "yellow"
     PINK = "pink"
     BROWN = "brown"
     GRAY = "gray"
     PURPLE = "purple"
+    ORANGE = "orange"
 
     def __str__(self) -> str:
         """Get the string representation."""
@@ -140,5 +98,17 @@ class Colors(Enum):
 
 
 color2int: Dict[Colors, int] = {c: i for i, c in enumerate(list(Colors))}
-
-ACTION_TYPE = Sequence[COMMAND_TYPES]
+id2color: Dict[str, Colors] = {
+    " ": Colors.BLANK,
+    "#": Colors.WALL,
+    "r": Colors.RED,
+    "g": Colors.GREEN,
+    "b": Colors.BLUE,
+    "y": Colors.YELLOW,
+    "p": Colors.PINK,
+    "o": Colors.ORANGE,
+    "B": Colors.BROWN,
+    "G": Colors.GRAY,
+    "P": Colors.PURPLE,
+}
+color2id = dict(map(reversed, id2color.items()))  # type: ignore
