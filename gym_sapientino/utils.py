@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright 2019-2020 Marco Favorito, Luca Iocchi
+# Copyright 2019-2023 Marco Favorito, Roberto Cipollone, Luca Iocchi
 #
 # ------------------------------
 #
@@ -22,14 +22,13 @@
 
 """This module contains utility functions."""
 from functools import reduce
-from typing import List
 
 import numpy as np
-from gym import spaces
+from gymnasium import spaces
 
 
 # TODO: maybe prefer numpy functions for encode decode
-def encode(obs: List[int], spaces: List[int]) -> int:
+def encode(obs: list[int], spaces: list[int]) -> int:
     """
     Encode an observation from a list of gym.Discrete spaces in one number.
 
@@ -37,7 +36,8 @@ def encode(obs: List[int], spaces: List[int]) -> int:
     :param spaces: the list of gym.Discrete spaces from where the observation is observed.
     :return: the encoded observation.
     """
-    assert len(obs) == len(spaces)
+    if len(obs) != len(spaces):
+        raise ValueError("Wrong input length")
     sizes = spaces
     result = obs[0]
     shift = sizes[0]
@@ -48,7 +48,7 @@ def encode(obs: List[int], spaces: List[int]) -> int:
     return result
 
 
-def decode(obs: int, spaces: List[int]) -> List[int]:
+def decode(obs: int, spaces: list[int]) -> list[int]:
     """
     Decode an observation from a list of gym.Discrete spaces in a list of integers.
 
@@ -84,7 +84,8 @@ def combine_boxes(*boxes: spaces.Box) -> spaces.Box:
     Output type is np.float32.
     """
     # Unidimensional spaces
-    assert all(len(space.shape) == 1 for space in boxes)
+    if not all(len(space.shape) == 1 for space in boxes):
+        raise ValueError("Unexpected shape")
 
     # Concat
     lows = np.concatenate([space.low for space in boxes])

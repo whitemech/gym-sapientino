@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright 2019-2020 Marco Favorito, Luca Iocchi
+# Copyright 2019-2023 Marco Favorito, Roberto Cipollone, Luca Iocchi
 #
 # ------------------------------
 #
@@ -21,7 +21,6 @@
 #
 
 """State representiations for different Sapientino game."""
-from abc import ABC
 from typing import Dict, List, Sequence, Tuple
 
 import numpy as np
@@ -34,7 +33,7 @@ from gym_sapientino.core.objects import Robot
 from gym_sapientino.core.types import Colors
 
 
-class SapientinoState(ABC):
+class SapientinoState:
     """Abstract class to represent a Sapientino state."""
 
     def __init__(self, config: "SapientinoConfiguration"):
@@ -64,7 +63,8 @@ class SapientinoState(ABC):
 
     def step(self, commands: Sequence[Command]) -> float:
         """Do a step."""
-        assert len(commands) == len(self.robots), "Some commands are missing."
+        if len(commands) != len(self.robots):
+            raise ValueError("Some commands are missing.")
         total_reward = 0.0
 
         next_robots = [c.step(r) for c, r in zip(commands, self.robots)]

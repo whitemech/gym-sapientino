@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright 2019-2020 Marco Favorito, Luca Iocchi
+# Copyright 2019-2023 Marco Favorito, Roberto Cipollone, Luca Iocchi
 #
 # ------------------------------
 #
@@ -149,16 +149,12 @@ class DifferentialGridCommand(Command):
         dx = (
             1
             if robot.direction.theta == 0
-            else -1
-            if robot.direction.theta == 180
-            else 0
+            else -1 if robot.direction.theta == 180 else 0
         )
         dy = (
             -1
             if robot.direction.theta == 90
-            else +1
-            if robot.direction.theta == 270
-            else 0
+            else +1 if robot.direction.theta == 270 else 0
         )
         x, y = robot.x, robot.y
         direction = robot.direction

@@ -54,51 +54,55 @@
   </a>
 </p>
 
-OpenAI Gym Sapientino environment using Pygame.
-
 <p align="center">
   <img src="https://raw.githubusercontent.com/whitemech/gym-sapientino/master/docs/sapientino-homepage.gif" />
 </p>
 
 ## Description
 
-The environment is inspired by a game for kids called 
-[_Sapientino_](https://it.wikipedia.org/wiki/Sapientino).
- 
-A robot moves on a gridworld-like environment, 
-where each cell can be coloured. 
-When a robot is on a coloured cell, it can 
-run a _beep_, meaning it has visited the cell.
+This is a configurable Gynmasium environment that implements one or more agents moving in a plane.
+The software was originally inspired by a game for kids called
+[_Sapientino_](https://it.wikipedia.org/wiki/Sapientino), but it has been extended in various ways.
 
-The environment is compliant with the 
-[OpenAI Gym](https://github.com/openai/gym/) APIs.
-The idea is that the designer of the experiment
-should implement the actual reward by wrapping the environment. 
+Each agent moves on a 2D environment,
+where each cell can be coloured or blank.
+When a robot is on a coloured cell, it can
+execute a _beep_ action, meaning it has visited the cell (this is meant to represent any interaction with the current location).
 
-## Dependencies
+### Features
 
-The environment is implemented using Pygame.
+The environment is compliant with the `Gymnasium` APIs.
 
-On Ubuntu, you need the following libraries:
-```
-sudo apt-get install python3-dev \
-    libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl-ttf2.0-dev libsmpeg-dev \
-    libsdl1.2-dev  libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev libfreetype6-dev
-```
+**Agents** There can be one or more agents in the same map. Each agent has its own action space.
 
-On MacOS (not tested):
-```
-brew install sdl sdl_ttf sdl_image sdl_mixer portmidi  # brew or use equivalent means
-conda install -c https://conda.binstar.org/quasiben pygame  # using Anaconda
-```
+**Actions** There are three default action spaces. The first allows the agent to move in the four cardinal directions. The second requires the agent to rotate by 90°, then move in discrete steps. The third instead allows the agent to accellerate and decelerate both in the angular and linear coordinates. This last modality does not implement a grid-world environment. For these actions, and how to implement your own, you can see `gym_sapientino/core/actions.py`.
+
+**Observations** The `Sapientino` class has a dictionary observation space that contains all the current information. For personalizing the observation space you can subclass the `Features` class in `gym_sapientino/wrappers/observations.py`. We provide discrete and continuous features wrappers.
+
+**Rewards** It is possible to specify per-step rewards, but for general reward functions, the user should wrap this environment.
+
+**Map** The map can be easily configured using ASCII strings. For example, combining
+
+    |P bB g |
+    | bp G r|
+    |G   pg |
+    | rpG PB|
+    |rP Bg b|
+
+with `ContinuousCommand` generates:
+
+![continuous control gif](/docs/continuous.gif)
+
+For a more complete documentation of how to use the environment, and the available options see this [notebook](docs/quickstart.ipynb).
+
 
 ## Install
 
 Install with `pip`:
 
     pip install gym_sapientino
-    
-Or, install from source:
+
+Or, for a more updated version, install from github:
 
     git clone https://github.com/whitemech/gym-sapientino.git
     cd gym-sapientino
@@ -106,52 +110,40 @@ Or, install from source:
 
 ## Development
 
-- clone the repo:
+- Clone the repo:
 ```bash
 git clone https://github.com/whitemech/gym-sapientino.git
 cd gym-sapientino
 ```
-    
-- Create/activate the virtual environment:
+
+- Install [Poetry](https://python-poetry.org/)
+- Optionally select the Python version:
 ```bash
-poetry shell --python=python3.7
+poetry env use python3.9
 ```
 
-- Install development dependencies:
+- Install with development dependencies:
 ```bash
 poetry install
 ```
-    
+
 ## Tests
 
 To run tests: `tox`
 
-To run only the code tests: `tox -e py3.7`
+Please look at the `tox.ini` file for the full list of supported commands and tests.
 
-To run only the linters: 
-- `tox -e flake8`
-- `tox -e mypy`
-- `tox -e black-check`
-- `tox -e isort-check`
-
-Please look at the `tox.ini` file for the full list of supported commands. 
-
-## Docs
-
-To build the docs: `mkdocs build`
-
-To view documentation in a browser: `mkdocs serve`
-and then go to [http://localhost:8000](http://localhost:8000)
 
 ## License
 
 gym-sapientino is released under the GNU General Public License v3.0 or later (GPLv3+).
 
-Copyright 2019-2020 Marco Favorito, Luca Iocchi
+Copyright 2019-2020 Marco Favorito, Roberto Cipollone, Luca Iocchi
 
 ## Authors
 
 - [Luca Iocchi](https://sites.google.com/a/dis.uniroma1.it/iocchi/home)
+- [Roberto Cipollone](https://cipollone.github.io/)
 - [Marco Favorito](https://marcofavorito.github.io/)
 
 ## Credits

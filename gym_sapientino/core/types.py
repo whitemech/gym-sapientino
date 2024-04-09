@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright 2019-2020 Marco Favorito, Luca Iocchi
+# Copyright 2019-2023 Marco Favorito, Roberto Cipollone, Luca Iocchi
 #
 # ------------------------------
 #
@@ -47,7 +47,8 @@ class Direction:
 
     def rotate_left(self, delta_theta: float) -> "Direction":
         """Rotate left of a certain amount."""
-        assert delta_theta >= 0.0, "Only positive values are allowed."
+        if delta_theta < 0.0:
+            raise ValueError("Only positive values are allowed.")
         return self.rotate(delta_theta)
 
     def rotate_90_left(self) -> "Direction":
@@ -56,7 +57,8 @@ class Direction:
 
     def rotate_right(self, delta_theta: float) -> "Direction":
         """Rotate right of a certain amount."""
-        assert delta_theta >= 0.0, "Only positive values are allowed."
+        if delta_theta < 0.0:
+            raise ValueError("Only positive values are allowed.")
         return self.rotate(-delta_theta)
 
     def rotate_90_right(self) -> "Direction":

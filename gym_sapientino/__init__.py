@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright 2019-2020 Marco Favorito, Luca Iocchi
+# Copyright 2019-2023 Marco Favorito, Roberto Cipollone, Luca Iocchi
 #
 # ------------------------------
 #
@@ -22,15 +22,8 @@
 
 """The 'Sapientino' OpenAI Gym Environment."""
 
-__version__ = "0.2.1"
+__version__ = "0.4.0"
 
-import gym
-
-from .core import actions
-from .wrappers import SapientinoDictSpace, observations
-
-gym.register(
-    "Sapientino-v0",
-    entry_point="gym_sapientino:SapientinoDictSpace",
-    max_episode_steps=100,
-)
+from .core import actions, configurations
+from .sapientino_env import Sapientino
+from .wrappers import observations

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright 2019-2020 Marco Favorito, Luca Iocchi
+# Copyright 2019-2023 Marco Favorito, Roberto Cipollone, Luca Iocchi
 #
 # ------------------------------
 #
@@ -21,31 +21,30 @@
 #
 """Definitions of observations spaces.
 
-SapientinoDictSpace is the most generic class, which returns all
-the information in form of a dictionary. Features classes define an observation
+Sapientino is the most generic class, which returns all
+the information in form of a dictionary.
+The features classes in this module define a specific observation
 space and extract information accordingly.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Sequence, Type, cast
+from typing import Any, Sequence, Type, cast
 
-import gym
 import numpy as np
-from gym import spaces
+from gymnasium import ObservationWrapper, Space, spaces
 
-from gym_sapientino import utils
-from gym_sapientino.wrappers.dict_space import SapientinoDictSpace
+from gym_sapientino import Sapientino, utils
 
-DictSpace = Dict[str, Any]
+DictObs = dict[str, Any]
 
 
 class Features(ABC):
     """Base class for all observation spaces.
 
     By subclassing from this class, we can define any observation space
-    computed over SapientinoDictSpace.
+    computed over Sapientino.
     The member "dict_state" stores last observation received from
-    SapientinoDictSpace. UseFeatures is a wrapper useful to apply features
+    Sapientino. UseFeatures is a wrapper useful to apply features
     to the environment.
     """
 
@@ -58,17 +57,17 @@ class Features(ABC):
         self.observation_space = self.compute_space()
 
     @abstractmethod
-    def compute_space(self) -> gym.Space:
+    def compute_space(self) -> Space:
         """Compute observation space."""
         pass
 
     @abstractmethod
-    def compute_observation(self, observation: DictSpace) -> Any:
+    def compute_observation(self, observation: DictObs) -> Any:
         """Transform according to observation space."""
         pass
 
 
-class UseFeatures(gym.ObservationWrapper):
+class UseFeatures(ObservationWrapper):
     """Choose a set of features for each robot in the environment.
 
     The feature classes of this module define the observation space for one
@@ -76,7 +75,7 @@ class UseFeatures(gym.ObservationWrapper):
     It also remember last unprocessed tuple of features.
     """
 
-    def __init__(self, env: SapientinoDictSpace, features: Sequence[Type[Features]]):
+    def __init__(self, env: Sapientino, features: Sequence[Type[Features]]):
         """Initialize.
 
         :param features: one feature for each robot.
@@ -90,7 +89,8 @@ class UseFeatures(gym.ObservationWrapper):
         # Store
         super().__init__(env)
         self.features = [
-            features[i](env.observation_space[i]) for i in range(len(features))
+            features[i](cast(spaces.Dict, cast(spaces.Tuple, env.observation_space)[i]))
+            for i in range(len(features))
         ]
 
         # Obs space
@@ -100,7 +100,10 @@ class UseFeatures(gym.ObservationWrapper):
 
     def observation(self, observation):
         """Compute an observation with features."""
-        assert len(observation) == len(self.features)
+        if len(observation) != len(self.features):
+            raise RuntimeError(
+                "Wrong observation length. Expected " + str(len(self.features))
+            )
         self.last_dict_observation = cast(Sequence[Any], observation)
         return [
             self.features[i].compute_observation(observation[i])
@@ -116,12 +119,14 @@ class DiscreteFeatures(Features):
 
     def compute_space(self) -> spaces.MultiDiscrete:
         """Compute observation space."""
-        x_space: spaces.Discrete = self.dict_space.spaces["discrete_x"]
-        y_space: spaces.Discrete = self.dict_space.spaces["discrete_y"]
-        beep_space: spaces.Discrete = self.dict_space.spaces["beep"]
-        return spaces.MultiDiscrete([x_space.n, y_space.n, beep_space.n])
+        x_space = cast(spaces.Discrete, self.dict_space.spaces["discrete_x"])
+        y_space = cast(spaces.Discrete, self.dict_space.spaces["discrete_y"])
+        beep_space = cast(spaces.Discrete, self.dict_space.spaces["beep"])
+        return spaces.MultiDiscrete(
+            [x_space.n.item(), y_space.n.item(), beep_space.n.item()]
+        )
 
-    def compute_observation(self, observation: DictSpace) -> Any:
+    def compute_observation(self, observation: DictObs):
         """Transform according to observation space."""
         new_state = np.array(
             [
@@ -142,13 +147,20 @@ class DiscreteAngleFeatures(Features):
 
     def compute_space(self) -> spaces.MultiDiscrete:
         """Compute observation space."""
-        x_space: spaces.Discrete = self.dict_space.spaces["discrete_x"]
-        y_space: spaces.Discrete = self.dict_space.spaces["discrete_y"]
-        theta_space: spaces.Discrete = self.dict_space.spaces["theta"]
-        beep_space: spaces.Discrete = self.dict_space.spaces["beep"]
-        return spaces.MultiDiscrete([x_space.n, y_space.n, theta_space.n, beep_space.n])
+        x_space = cast(spaces.Discrete, self.dict_space.spaces["discrete_x"])
+        y_space = cast(spaces.Discrete, self.dict_space.spaces["discrete_y"])
+        theta_space = cast(spaces.Discrete, self.dict_space.spaces["theta"])
+        beep_space = cast(spaces.Discrete, self.dict_space.spaces["beep"])
+        return spaces.MultiDiscrete(
+            [
+                x_space.n.item(),
+                y_space.n.item(),
+                theta_space.n.item(),
+                beep_space.n.item(),
+            ]
+        )
 
-    def compute_observation(self, observation: DictSpace) -> Any:
+    def compute_observation(self, observation: DictObs):
         """Transform according to observation space."""
         new_state = np.array(
             [
@@ -168,8 +180,8 @@ class ContinuousFeatures(Features):
     def compute_space(self) -> spaces.Box:
         """Compute observation space."""
         # Position on plane
-        x_space: spaces.Box = self.dict_space.spaces["x"]
-        y_space: spaces.Box = self.dict_space.spaces["y"]
+        x_space = cast(spaces.Box, self.dict_space.spaces["x"])
+        y_space = cast(spaces.Box, self.dict_space.spaces["y"])
 
         # Try with cos, sin, instead of angle
         cos_space = spaces.Box(-1, 1, shape=[1])
@@ -194,7 +206,7 @@ class ContinuousFeatures(Features):
         )
         return merged
 
-    def compute_observation(self, observation: DictSpace) -> Any:
+    def compute_observation(self, observation: DictObs):
         """Transform according to observation space."""
         # Deg to radians
         cos = np.reshape(np.cos(observation["angle"] / 180 * np.pi), [1])

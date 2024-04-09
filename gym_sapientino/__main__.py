@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright 2019-2020 Marco Favorito, Luca Iocchi
+# Copyright 2019-2023 Marco Favorito, Roberto Cipollone, Luca Iocchi
 #
 # ------------------------------
 #
@@ -25,13 +25,12 @@
 
 import argparse
 
-from gym.wrappers import Monitor
+from gymnasium import Env
 
-from gym_sapientino import play
+from gym_sapientino import Sapientino, play
 from gym_sapientino.core.configurations import SapientinoAgentConfiguration
 from gym_sapientino.play import FrameCapture
 from gym_sapientino.sapientino_env import SapientinoConfiguration
-from gym_sapientino.wrappers.dict_space import SapientinoDictSpace
 
 
 def parse_arguments():
@@ -53,11 +52,12 @@ if __name__ == "__main__":
     args = parse_arguments()
     c = SapientinoAgentConfiguration(args.differential, args.continuous)
     agent_configs = (c,)
-    env = SapientinoDictSpace(SapientinoConfiguration(agent_configs))
+    env: Env = Sapientino(SapientinoConfiguration(agent_configs))
     if args.frames:
         env = FrameCapture("frames", env)
     if args.record:
-        env = Monitor(env, "recordings", force=True)
-        env.metadata["video.frames_per_second"] = 2  # type: ignore
+        raise NotImplementedError(
+            "Recordings changed in new gymnasium. Not implemented yet"
+        )
 
     play.play(env)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright 2019-2020 Marco Favorito, Luca Iocchi
+# Copyright 2019-2023 Marco Favorito, Roberto Cipollone, Luca Iocchi
 #
 # ------------------------------
 #
@@ -19,6 +19,7 @@
 # You should have received a copy of the GNU General Public License
 # along with gym-sapientino.  If not, see <https://www.gnu.org/licenses/>.
 #
+# TODO: rendering changed
 
 """Pygame-based rendering."""
 from typing import Any, Callable, Dict, Type
@@ -80,7 +81,7 @@ class PygameRenderer(Renderer):
         """Get the window height."""
         return self.size_square * self.config.rows + self.offy + (self.offy // 2)
 
-    def render(self, mode="human") -> None:
+    def render(self, mode="human"):
         """Render."""
         self._fill_screen()
         self._draw_score_label()

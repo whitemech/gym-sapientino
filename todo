@@ -1,0 +1,6 @@
++ from gym to gymnasium
+- tests
+- doc
+- unused notebooks
++ copyright
+- Move dict space to env
