@@ -149,16 +149,12 @@ class DifferentialGridCommand(Command):
         dx = (
             1
             if robot.direction.theta == 0
-            else -1
-            if robot.direction.theta == 180
-            else 0
+            else -1 if robot.direction.theta == 180 else 0
         )
         dy = (
             -1
             if robot.direction.theta == 90
-            else +1
-            if robot.direction.theta == 270
-            else 0
+            else +1 if robot.direction.theta == 270 else 0
         )
         x, y = robot.x, robot.y
         direction = robot.direction
