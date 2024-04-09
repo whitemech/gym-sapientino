@@ -24,14 +24,6 @@
 
 __version__ = "0.4.0"
 
-import gymnasium as gym
-
-from .core import actions
+from .core import actions, configurations
 from .sapientino_env import Sapientino
 from .wrappers import observations
-
-gym.register(
-    "Sapientino-v1",
-    entry_point="gym_sapientino:Sapientino",
-    max_episode_steps=100,
-)

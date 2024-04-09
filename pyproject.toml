@@ -24,8 +24,7 @@ classifiers = [
     'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
     'Natural Language :: English',
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.7',
-    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
 ]
 #packages = []
 include = []
@@ -43,6 +42,7 @@ gymnasium = ">=0.26.1,<0.30"
 numpy = "^1.21.0"
 pygame = "^2.2.0"
 pillow = "^10.1.0"
+markdown-include = "^0.8.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.3"
